@@ -1,0 +1,140 @@
+### 健康检查
+GET http://localhost:8080/health
+Content-Type: application/json
+
+### 默认插值 (三次样条)
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 1, "y": 1},
+    {"x": 2, "y": 4},
+    {"x": 3, "y": 9}
+  ],
+  "target_x_list": [0.5, 1.5, 2.5]
+}
+
+### 显式指定三次样条插值 (自然边界)
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 1},
+    {"x": 1, "y": 2},
+    {"x": 2, "y": 1},
+    {"x": 3, "y": 0},
+    {"x": 4, "y": 1},
+    {"x": 5, "y": 2}
+  ],
+  "target_x_list": [0.5, 1.5, 2.5, 3.5, 4.5],
+  "method": "spline"
+}
+
+### 拉格朗日插值 (分段，避免Runge现象)
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 1, "y": 1},
+    {"x": 2, "y": 4},
+    {"x": 3, "y": 9},
+    {"x": 4, "y": 16},
+    {"x": 5, "y": 25},
+    {"x": 6, "y": 36},
+    {"x": 7, "y": 49},
+    {"x": 8, "y": 64},
+    {"x": 9, "y": 81}
+  ],
+  "target_x_list": [2.5, 4.5, 6.5],
+  "method": "lagrange"
+}
+
+### 两种插值方法对比 - Runge现象测试
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": -5, "y": 0.0385},
+    {"x": -4, "y": 0.0588},
+    {"x": -3, "y": 0.1},
+    {"x": -2, "y": 0.2},
+    {"x": -1, "y": 0.5},
+    {"x": 0, "y": 1},
+    {"x": 1, "y": 0.5},
+    {"x": 2, "y": 0.2},
+    {"x": 3, "y": 0.1},
+    {"x": 4, "y": 0.0588},
+    {"x": 5, "y": 0.0385}
+  ],
+  "target_x_list": [-4.5, -2.5, -0.5, 0.5, 2.5, 4.5],
+  "method": "spline"
+}
+
+### 自动去重 + 样条插值
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 0, "y": 0.5},
+    {"x": 1, "y": 1},
+    {"x": 1.000000001, "y": 1.1},
+    {"x": 2, "y": 4},
+    {"x": 3, "y": 9},
+    {"x": 3, "y": 10}
+  ],
+  "target_x_list": [0.5, 1.5, 2.5],
+  "method": "spline"
+}
+
+### 正弦函数 - 样条插值
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 0.7854, "y": 0.7071},
+    {"x": 1.5708, "y": 1},
+    {"x": 2.3562, "y": 0.7071},
+    {"x": 3.1416, "y": 0},
+    {"x": 4.7124, "y": -1},
+    {"x": 6.2832, "y": 0}
+  ],
+  "target_x_list": [0.3927, 1.1781, 1.9635, 3.927, 5.4978],
+  "method": "spline"
+}
+
+### 两点样条插值 (退化为线性)
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 10, "y": 100}
+  ],
+  "target_x_list": [2, 5, 8],
+  "method": "spline"
+}
+
+### 不支持的插值方法 (错误测试)
+POST http://localhost:8080/interpolate
+Content-Type: application/json
+
+{
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 1, "y": 1},
+    {"x": 2, "y": 4}
+  ],
+  "target_x_list": [1.5],
+  "method": "polynomial"
+}

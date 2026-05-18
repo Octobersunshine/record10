@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package newtonraphson;
+
+option go_package = "newton_raphson_grpc/proto";
+
+service NewtonRaphsonService {
+    rpc FindRoot(RootRequest) returns (RootResponse) {}
+}
+
+message RootRequest {
+    string expression = 1;
+    double initial_guess = 2;
+    double precision = 3;
+    int32 max_iterations = 4;
+}
+
+message RootResponse {
+    double root = 1;
+    double root_imag = 6;
+    int32 iterations = 2;
+    bool converged = 3;
+    string error = 4;
+    int32 multiplicity = 5;
+    bool is_complex = 7;
+    bool used_fallback = 8;
+    string fallback_info = 9;
+    bool input_valid = 10;
+    string validation_msg = 11;
+    double suggested_initial = 12;
+    string derivative = 13;
+    string derivative_raw = 14;
+}

@@ -1,0 +1,7 @@
+fastapi==0.109.0
+uvicorn==0.27.0
+scikit-learn==1.4.0
+numpy==1.26.3
+pydantic==2.5.3
+requests==2.31.0
+hdbscan==0.8.37

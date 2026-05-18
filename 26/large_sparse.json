@@ -1,0 +1,12 @@
+{
+  "sparse_matrix": {
+    "n": 100,
+    "entries": [
+      {"row": 0, "col": 0, "val": 0.9},
+      {"row": 0, "col": 1, "val": 0.1}
+    ]
+  },
+  "epsilon": 1e-10,
+  "max_iter": 10000,
+  "krylov_dim": 20
+}

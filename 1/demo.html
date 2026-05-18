@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时流式频谱分析 - WebSocket Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d9ff;
+        }
+        .controls {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff 0%, #00ff88 100%);
+            color: #1a1a2e;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: #fff;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,217,255,0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .connected { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .disconnected { background: #ff6b6b; box-shadow: 0 0 10px #ff6b6b; }
+        .peaks-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .peak-card {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .peak-card h3 {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .peak-frequency {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00d9ff;
+            margin-bottom: 5px;
+        }
+        .peak-magnitude {
+            font-size: 18px;
+            color: #00ff88;
+        }
+        .peak-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .peak-change.positive { color: #00ff88; }
+        .peak-change.negative { color: #ff6b6b; }
+        .spectrogram {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .spectrogram h2 {
+            margin-bottom: 15px;
+            color: #00d9ff;
+        }
+        #spectrogramCanvas {
+            width: 100%;
+            height: 200px;
+            background: #0a0a15;
+            border-radius: 10px;
+        }
+        .log-panel {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            padding: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .log-time {
+            color: #888;
+        }
+        select, input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 14px;
+        }
+        label {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 实时流式频谱分析</h1>
+        
+        <div class="controls">
+            <div class="status">
+                <div class="status-item">
+                    <span class="status-dot disconnected" id="connectionStatus"></span>
+                    <span id="connectionText">未连接</span>
+                </div>
+                <div class="status-item">
+                    <span>序列: <strong id="seqNum">0</strong></span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>采样率:</label>
+                <select id="sampleRate">
+                    <option value="44100">44100 Hz</option>
+                    <option value="48000">48000 Hz</option>
+                    <option value="22050">22050 Hz</option>
+                </select>
+                
+                <label>窗口大小:</label>
+                <select id="windowSize">
+                    <option value="1024">1024</option>
+                    <option value="512">512</option>
+                    <option value="2048">2048</option>
+                </select>
+                
+                <label>Hop大小:</label>
+                <select id="hopSize">
+                    <option value="128">128</option>
+                    <option value="64">64</option>
+                    <option value="256">256</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <button class="btn-primary" id="connectBtn" onclick="connectWebSocket()">连接</button>
+                <button class="btn-danger" id="disconnectBtn" onclick="disconnectWebSocket()" disabled>断开</button>
+                <button class="btn-secondary" id="startMicBtn" onclick="startMicrophone()" disabled>开始麦克风</button>
+                <button class="btn-secondary" id="stopMicBtn" onclick="stopMicrophone()" disabled>停止麦克风</button>
+                <button class="btn-secondary" id="testToneBtn" onclick="playTestTone()" disabled>播放测试音</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="fps">0</div>
+                <div class="stat-label">FPS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="latency">0</div>
+                <div class="stat-label">延迟 (ms)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPackets">0</div>
+                <div class="stat-label">总数据包</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="bufferLevel">0</div>
+                <div class="stat-label">缓冲区 (样本)</div>
+            </div>
+        </div>
+
+        <div class="peaks-display">
+            <div class="peak-card">
+                <h3>🏆 峰值 #1</h3>
+                <div class="peak-frequency" id="peak1Freq">-</div>
+                <div class="peak-magnitude" id="peak1Mag">-</div>
+                <div class="peak-change" id="peak1Change">-</div>
+            </div>
+            <div class="peak-card">
+                <h3>🥈 峰值 #2</h3>
+                <div class="peak-frequency" id="peak2Freq">-</div>
+                <div class="peak-magnitude" id="peak2Mag">-</div>
+                <div class="peak-change" id="peak2Change">-</div>
+            </div>
+            <div class="peak-card">
+                <h3>🥉 峰值 #3</h3>
+                <div class="peak-frequency" id="peak3Freq">-</div>
+                <div class="peak-magnitude" id="peak3Mag">-</div>
+                <div class="peak-change" id="peak3Change">-</div>
+            </div>
+        </div>
+
+        <div class="spectrogram">
+            <h2>频谱图</h2>
+            <canvas id="spectrogramCanvas"></canvas>
+        </div>
+
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry">
+                <span class="log-time">[系统]</span> 等待连接...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let audioContext = null;
+        let microphoneStream = null;
+        let processorNode = null;
+        let frameCount = 0;
+        let lastFpsUpdate = Date.now();
+        let totalPackets = 0;
+        let spectrogramData = new Array(512).fill(0);
+
+        function log(message) {
+            const logPanel = document.getElementById('logPanel');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            logPanel.innerHTML = `<div class="log-entry"><span class="log-time">[${timeStr}]</span> ${message}</div>` + logPanel.innerHTML;
+        }
+
+        function connectWebSocket() {
+            const wsUrl = `ws://${window.location.host}/api/v1/stream`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                document.getElementById('connectionStatus').className = 'status-dot connected';
+                document.getElementById('connectionText').textContent = '已连接';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('startMicBtn').disabled = false;
+                document.getElementById('testToneBtn').disabled = false;
+                
+                const config = {
+                    type: 'config',
+                    sample_rate: parseInt(document.getElementById('sampleRate').value),
+                    window_size: parseInt(document.getElementById('windowSize').value),
+                    hop_size: parseInt(document.getElementById('hopSize').value)
+                };
+                ws.send(JSON.stringify(config));
+                log('WebSocket 已连接，发送配置');
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updatePeaks(data);
+                updateStats(data);
+                updateSpectrogram(data);
+                totalPackets++;
+            };
+
+            ws.onclose = function() {
+                document.getElementById('connectionStatus').className = 'status-dot disconnected';
+                document.getElementById('connectionText').textContent = '未连接';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                document.getElementById('startMicBtn').disabled = true;
+                document.getElementById('stopMicBtn').disabled = true;
+                document.getElementById('testToneBtn').disabled = true;
+                log('WebSocket 已断开');
+            };
+
+            ws.onerror = function(error) {
+                log('WebSocket 错误: ' + error);
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            stopMicrophone();
+        }
+
+        async function startMicrophone() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: parseInt(document.getElementById('sampleRate').value)
+                });
+                
+                microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const source = audioContext.createMediaStreamSource(microphoneStream);
+                
+                const bufferSize = 256;
+                processorNode = audioContext.createScriptProcessor(bufferSize, 1, 1);
+                
+                processorNode.onaudioprocess = function(e) {
+                    const inputData = e.inputBuffer.getChannelData(0);
+                    const pcmData = new Int16Array(inputData.length);
+                    
+                    for (let i = 0; i < inputData.length; i++) {
+                        pcmData[i] = Math.max(-32767, Math.min(32767, inputData[i] * 32767));
+                    }
+                    
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(pcmData.buffer);
+                    }
+                    
+                    frameCount++;
+                };
+                
+                source.connect(processorNode);
+                processorNode.connect(audioContext.destination);
+                
+                document.getElementById('startMicBtn').disabled = true;
+                document.getElementById('stopMicBtn').disabled = false;
+                log('麦克风已启动，正在流式传输音频...');
+            } catch (err) {
+                log('麦克风错误: ' + err.message);
+            }
+        }
+
+        function stopMicrophone() {
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+                microphoneStream = null;
+            }
+            if (processorNode) {
+                processorNode.disconnect();
+                processorNode = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            document.getElementById('startMicBtn').disabled = false;
+            document.getElementById('stopMicBtn').disabled = true;
+            log('麦克风已停止');
+        }
+
+        function playTestTone() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: parseInt(document.getElementById('sampleRate').value)
+                });
+            }
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.frequency.value = 440;
+            oscillator.type = 'sine';
+            gainNode.gain.value = 0.5;
+            
+            const bufferSize = 256;
+            const testProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+            
+            testProcessor.onaudioprocess = function(e) {
+                const inputData = e.inputBuffer.getChannelData(0);
+                const pcmData = new Int16Array(inputData.length);
+                
+                for (let i = 0; i < inputData.length; i++) {
+                    pcmData[i] = Math.max(-32767, Math.min(32767, inputData[i] * 32767));
+                }
+                
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(pcmData.buffer);
+                }
+                
+                frameCount++;
+            };
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(testProcessor);
+            testProcessor.connect(audioContext.destination);
+            
+            oscillator.start();
+            
+            setTimeout(() => {
+                oscillator.stop();
+                testProcessor.disconnect();
+            }, 3000);
+            
+            log('播放 440Hz 测试音 3 秒...');
+        }
+
+        function updatePeaks(data) {
+            const peaks = data.peaks || [];
+            
+            for (let i = 1; i <= 3; i++) {
+                const peak = peaks[i - 1];
+                if (peak) {
+                    document.getElementById(`peak${i}Freq`).textContent = peak.frequency.toFixed(1) + ' Hz';
+                    document.getElementById(`peak${i}Mag`).textContent = peak.magnitude.toFixed(3);
+                    
+                    const changeEl = document.getElementById(`peak${i}Change`);
+                    if (peak.change !== undefined) {
+                        const change = peak.change.toFixed(1);
+                        changeEl.textContent = (change >= 0 ? '+' : '') + change + '%';
+                        changeEl.className = 'peak-change ' + (change >= 0 ? 'positive' : 'negative');
+                    } else {
+                        changeEl.textContent = '-';
+                    }
+                } else {
+                    document.getElementById(`peak${i}Freq`).textContent = '-';
+                    document.getElementById(`peak${i}Mag`).textContent = '-';
+                    document.getElementById(`peak${i}Change`).textContent = '-';
+                }
+            }
+            
+            document.getElementById('seqNum').textContent = data.seq || 0;
+        }
+
+        function updateStats(data) {
+            document.getElementById('latency').textContent = (data.latency || 0).toFixed(2);
+            document.getElementById('totalPackets').textContent = totalPackets;
+            
+            if (Date.now() - lastFpsUpdate >= 1000) {
+                document.getElementById('fps').textContent = frameCount;
+                frameCount = 0;
+                lastFpsUpdate = Date.now();
+            }
+        }
+
+        function updateSpectrogram(data) {
+            const canvas = document.getElementById('spectrogramCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            const peaks = data.peaks || [];
+            
+            ctx.fillStyle = '#0a0a15';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            spectrogramData.shift();
+            const maxMag = peaks.length > 0 ? peaks[0].magnitude : 0;
+            spectrogramData.push(maxMag);
+            
+            for (let i = 0; i < spectrogramData.length; i++) {
+                const x = (i / spectrogramData.length) * canvas.width;
+                const height = spectrogramData[i] * canvas.height * 3;
+                const hue = 180 + (spectrogramData[i] * 120);
+                
+                ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.8)`;
+                ctx.fillRect(x, canvas.height - height, 2, height);
+            }
+            
+            peaks.forEach((peak, index) => {
+                const x = (peak.frequency / 22050) * canvas.width;
+                const y = canvas.height - (peak.magnitude * canvas.height * 3);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 5 + index * 2, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${180 + index * 30}, 100%, 60%, 0.9)`;
+                ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px Arial';
+                ctx.fillText(`${peak.frequency.toFixed(0)}Hz`, x + 8, y);
+            });
+        }
+
+        setInterval(() => {
+            document.getElementById('bufferLevel').textContent = Math.min(frameCount * 128, 2048);
+        }, 100);
+    </script>
+</body>
+</html>

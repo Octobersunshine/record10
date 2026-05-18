@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package integral;
+
+option go_package = "./proto";
+
+enum Method {
+  COMPOSITE_SIMPSON = 0;
+  ADAPTIVE_SIMPSON = 1;
+  GAUSS_KRONROD = 2;
+  HYBRID_AUTO = 3;
+}
+
+service IntegralService {
+  rpc CalculateIntegral(IntegralRequest) returns (IntegralResponse);
+}
+
+message IntegralRequest {
+  string function = 1;
+  double a = 2;
+  double b = 3;
+  int32 n = 4;
+  Method method = 5;
+  double epsilon = 6;
+}
+
+message IntegralResponse {
+  double result = 1;
+  string error = 2;
+}
