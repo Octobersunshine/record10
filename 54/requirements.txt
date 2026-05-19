@@ -1,0 +1,2 @@
+numpy>=1.21.0
+tensorly>=0.8.0
