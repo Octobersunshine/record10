@@ -1,0 +1,9 @@
+numpy>=1.21.0
+librosa>=0.9.0
+matplotlib>=3.4.0
+scipy>=1.7.0
+soundfile>=0.10.0
+
+# CREPE深度学习方法（可选）
+# crepe>=0.0.12
+# tensorflow>=2.8.0
