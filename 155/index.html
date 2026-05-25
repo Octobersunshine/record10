@@ -1,0 +1,1189 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ni基超合金γ/γ'微观结构模拟 - 弹性场+筏化</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #eee;
+            padding: 15px;
+        }
+        .container { max-width: 1500px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            font-size: 22px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .control-group label {
+            font-size: 10px;
+            color: #aaa;
+        }
+        .control-group input, .control-group select {
+            padding: 5px 8px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+            font-size: 11px;
+            width: 100px;
+        }
+        .btn {
+            padding: 7px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 18px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(251, 191, 36, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #cc5555 100%);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .panel h2 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        canvas {
+            border: 2px solid #333;
+            border-radius: 4px;
+            width: 100%;
+            image-rendering: pixelated;
+        }
+        .info {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .info-item {
+            background: rgba(251, 191, 36, 0.1);
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .info-item .label {
+            font-size: 9px;
+            color: #888;
+        }
+        .info-item .value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        .info-item.stable .value { color: #4ade80; }
+        .info-item.unstable .value { color: #ff6b6b; }
+        .chart-container {
+            height: 180px;
+            position: relative;
+        }
+        .equation {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        .equation .highlight { color: #fbbf24; }
+        .stability-note {
+            background: rgba(74, 222, 128, 0.1);
+            border-left: 3px solid #4ade80;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #ccc;
+            border-radius: 0 4px 4px 0;
+        }
+        .stability-note code {
+            background: rgba(74, 222, 128, 0.2);
+            padding: 1px 4px;
+            border-radius: 2px;
+            color: #4ade80;
+            font-size: 10px;
+        }
+        @media (max-width: 1200px) {
+            .main-content { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .main-content { grid-template-columns: 1fr; }
+            .info { grid-template-columns: repeat(2, 1fr); }
+        }
+        .legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Ni基超合金γ/γ'微观结构模拟 <span class="badge">弹性场+筏化</span></h1>
+        <p class="subtitle">Cahn-Hilliard + 线弹性 | 立方晶系各向异性 | Moulinec-Suquet FFT迭代法</p>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>网格大小</label>
+                <select id="gridSize">
+                    <option value="64" selected>64 × 64</option>
+                    <option value="128">128 × 128</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>时间步长 dt</label>
+                <input type="number" id="dt" value="0.05" step="0.01" min="0.001" max="0.5">
+            </div>
+            <div class="control-group">
+                <label>晶格失配 ε₀</label>
+                <input type="number" id="misfit" value="0.005" step="0.001" min="0" max="0.02">
+            </div>
+            <div class="control-group">
+                <label>外加应力 σ_app (MPa)</label>
+                <input type="number" id="appliedStress" value="200" step="50" min="0" max="500">
+            </div>
+            <div class="control-group">
+                <label>弹性各向异性 A</label>
+                <input type="number" id="anisotropy" value="3.2" step="0.1" min="1" max="5">
+            </div>
+            <div class="control-group">
+                <label>初始γ'体积分数</label>
+                <input type="number" id="volumeFraction" value="0.3" step="0.05" min="0.1" max="0.6">
+            </div>
+            <div class="control-group">
+                <label>显示模式</label>
+                <select id="displayMode">
+                    <option value="concentration" selected>浓度场 c</option>
+                    <option value="energy">弹性能密度</option>
+                    <option value="stress">应力 σ_xx</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" id="startBtn">▶ 开始</button>
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-danger" id="resetBtn">↻ 重置</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2>🎨 微观结构演化</h2>
+                <canvas id="canvas" width="384" height="384"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #1e3a5f;"></div>
+                        <span>γ 基体 (Ni)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fbbf24;"></div>
+                        <span>γ' 沉淀相 (Ni₃Al)</span>
+                    </div>
+                </div>
+                <div class="info">
+                    <div class="info-item">
+                        <div class="label">时间 t</div>
+                        <div class="value" id="timeValue">0.00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">步数</div>
+                        <div class="value" id="stepValue">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">γ' 体积分数</div>
+                        <div class="value" id="vfValue">0.30</div>
+                    </div>
+                    <div class="info-item stable" id="stabilityItem">
+                        <div class="label">稳定性</div>
+                        <div class="value" id="stabilityValue">✓ 稳定</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📐 物理模型</h2>
+                <div class="equation">
+                    <div><span class="highlight">Cahn-Hilliard方程:</span></div>
+                    <div>∂c/∂t = M ∇² (μ_chem + μ_elast)</div>
+                    <br>
+                    <div><span class="highlight">化学自由能:</span></div>
+                    <div>f_chem = W c²(1-c)²</div>
+                    <br>
+                    <div><span class="highlight">弹性应变能:</span></div>
+                    <div>f_elast = ½ σ_ij (ε_ij - ε*_ij(c))</div>
+                    <div>ε*_ij(c) = ε₀ δ_ij (c - c₀)</div>
+                    <br>
+                    <div><span class="highlight">立方晶系弹性:</span></div>
+                    <div>C₁₁, C₁₂, C₄₄ (A = 2C₄₄/(C₁₁-C₁₂))</div>
+                </div>
+                <div class="stability-note">
+                    <strong>✅ 筏化(Rafting)机制:</strong><br>
+                    外加拉应力 → γ'相沿[001]方向排列 → 降低弹性应变能<br>
+                    失配应变 + 各向异性弹性 → 定向粗化
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📊 能量演化</h2>
+                <div class="chart-container">
+                    <canvas id="energyChart"></canvas>
+                </div>
+                <h2 style="margin-top: 10px;">📈 γ'相尺寸</h2>
+                <div class="chart-container">
+                    <canvas id="sizeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>📚 镍基超合金与筏化现象</h2>
+            <p style="line-height: 1.7; color: #ccc; font-size: 12px;">
+                <strong>γ/γ'微观结构</strong>：镍基超合金由γ基体（Ni，无序FCC）和γ'沉淀相（Ni₃Al，有序L1₂）组成。
+                γ'相的体积分数通常为30-70%，是高温强度的主要来源。
+                <br><br>
+                <strong>筏化(Rafting)</strong>：在高温蠕变条件下，外加应力与晶格失配应变的共同作用导致γ'相沿特定方向定向粗化。
+                拉应力下，负失配合金的γ'相沿垂直于应力方向排列形成筏状结构。
+                <br><br>
+                <strong>弹性各向异性</strong>：镍的各向异性因子A≈3.2，导致弹性模量在&lt;100&gt;方向（软）和&lt;111&gt;方向（硬）差异显著。
+                这种各向异性是筏化和立方形貌演化的关键驱动力。
+            </p>
+        </div>
+    </div>
+
+    <script>
+        class Complex {
+            constructor(re = 0, im = 0) {
+                this.re = re;
+                this.im = im;
+            }
+            add(c) { return new Complex(this.re + c.re, this.im + c.im); }
+            sub(c) { return new Complex(this.re - c.re, this.im - c.im); }
+            mul(c) { 
+                return new Complex(
+                    this.re * c.re - this.im * c.im,
+                    this.re * c.im + this.im * c.re
+                );
+            }
+            mulReal(x) { return new Complex(this.re * x, this.im * x); }
+            divReal(x) { return new Complex(this.re / x, this.im / x); }
+            static exp(c) {
+                const e = Math.exp(c.re);
+                return new Complex(e * Math.cos(c.im), e * Math.sin(c.im));
+            }
+        }
+
+        function fft1D(data, inverse) {
+            const n = data.length;
+            if (n <= 1) return;
+            const even = [];
+            const odd = [];
+            for (let i = 0; i < n; i += 2) {
+                even.push(data[i]);
+                odd.push(data[i + 1]);
+            }
+            fft1D(even, inverse);
+            fft1D(odd, inverse);
+            const sign = inverse ? 1 : -1;
+            for (let k = 0; k < n / 2; k++) {
+                const angle = sign * 2 * Math.PI * k / n;
+                const t = new Complex(
+                    Math.cos(angle) * odd[k].re - Math.sin(angle) * odd[k].im,
+                    Math.sin(angle) * odd[k].re + Math.cos(angle) * odd[k].im
+                );
+                data[k] = even[k].add(t);
+                data[k + n / 2] = even[k].sub(t);
+            }
+        }
+
+        function fft2Real(realData, N) {
+            const complex = new Array(N);
+            for (let i = 0; i < N; i++) {
+                complex[i] = new Array(N);
+                for (let j = 0; j < N; j++) {
+                    complex[i][j] = new Complex(realData[i * N + j], 0);
+                }
+            }
+            for (let i = 0; i < N; i++) {
+                fft1D(complex[i], false);
+            }
+            const col = new Array(N);
+            for (let j = 0; j < N; j++) {
+                for (let i = 0; i < N; i++) {
+                    col[i] = complex[i][j];
+                }
+                fft1D(col, false);
+                for (let i = 0; i < N; i++) {
+                    complex[i][j] = col[i];
+                }
+            }
+            return complex;
+        }
+
+        function ifft2Real(complex, N) {
+            const result = new Float32Array(N * N);
+            for (let i = 0; i < N; i++) {
+                fft1D(complex[i], true);
+            }
+            const col = new Array(N);
+            for (let j = 0; j < N; j++) {
+                for (let i = 0; i < N; i++) {
+                    col[i] = complex[i][j];
+                }
+                fft1D(col, true);
+                for (let i = 0; i < N; i++) {
+                    complex[i][j] = col[i];
+                }
+            }
+            const norm = 1.0 / (N * N);
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    result[i * N + j] = complex[i][j].re * norm;
+                }
+            }
+            return result;
+        }
+
+        class ElasticSolver {
+            constructor(N, L, C11, C12, C44) {
+                this.N = N;
+                this.L = L;
+                this.C11 = C11;
+                this.C12 = C12;
+                this.C44 = C44;
+                this.dx = L / N;
+                
+                this.kx = new Float32Array(N);
+                this.ky = new Float32Array(N);
+                for (let i = 0; i < N; i++) {
+                    this.kx[i] = 2 * Math.PI * ((i <= N/2) ? i : i - N) / L;
+                    this.ky[i] = 2 * Math.PI * ((i <= N/2) ? i : i - N) / L;
+                }
+                
+                this.Gamma0 = this.computeGamma0();
+            }
+            
+            computeGamma0() {
+                const N = this.N;
+                const G = new Array(N);
+                for (let i = 0; i < N; i++) {
+                    G[i] = new Array(N);
+                    for (let j = 0; j < N; j++) {
+                        G[i][j] = [[0, 0], [0, 0]];
+                        if (i === 0 && j === 0) continue;
+                        
+                        const kx = this.kx[i];
+                        const ky = this.ky[j];
+                        const k_mag = Math.sqrt(kx * kx + ky * ky);
+                        const n1 = kx / k_mag;
+                        const n2 = ky / k_mag;
+                        
+                        const K = [
+                            [
+                                this.C11 * n1 * n1 + this.C44 * n2 * n2,
+                                (this.C12 + this.C44) * n1 * n2
+                            ],
+                            [
+                                (this.C12 + this.C44) * n1 * n2,
+                                this.C44 * n1 * n1 + this.C11 * n2 * n2
+                            ]
+                        ];
+                        
+                        const det = K[0][0] * K[1][1] - K[0][1] * K[1][0];
+                        G[i][j][0][0] = K[1][1] / det;
+                        G[i][j][0][1] = -K[0][1] / det;
+                        G[i][j][1][0] = -K[1][0] / det;
+                        G[i][j][1][1] = K[0][0] / det;
+                    }
+                }
+                return G;
+            }
+            
+            solveElasticity(eigenstrain, maxIter = 15, tol = 1e-6) {
+                const N = this.N;
+                const eps = [new Float32Array(N * N), new Float32Array(N * N)];
+                
+                const strain_hat = [
+                    new Array(N), new Array(N)
+                ];
+                
+                for (let iter = 0; iter < maxIter; iter++) {
+                    const delta_eps = [new Float32Array(N * N), new Float32Array(N * N)];
+                    for (let idx = 0; idx < N * N; idx++) {
+                        const e0 = eigenstrain[idx];
+                        delta_eps[0][idx] = e0 - eps[0][idx];
+                        delta_eps[1][idx] = e0 - eps[1][idx];
+                    }
+                    
+                    const de_hat0 = fft2Real(delta_eps[0], N);
+                    const de_hat1 = fft2Real(delta_eps[1], N);
+                    
+                    for (let i = 0; i < N; i++) {
+                        strain_hat[0][i] = new Array(N);
+                        strain_hat[1][i] = new Array(N);
+                        for (let j = 0; j < N; j++) {
+                            if (i === 0 && j === 0) {
+                                strain_hat[0][i][j] = new Complex(0, 0);
+                                strain_hat[1][i][j] = new Complex(0, 0);
+                                continue;
+                            }
+                            
+                            const kx = this.kx[i];
+                            const ky = this.ky[j];
+                            const k_mag = Math.sqrt(kx * kx + ky * ky);
+                            const n1 = kx / k_mag;
+                            const n2 = ky / k_mag;
+                            
+                            const dSigma_hat = [
+                                this.C11 * de_hat0[i][j].re + this.C12 * de_hat1[i][j].re,
+                                this.C12 * de_hat0[i][j].re + this.C11 * de_hat1[i][j].re
+                            ];
+                            
+                            const G = this.Gamma0[i][j];
+                            const du1_hat = G[0][0] * n1 * dSigma_hat[0] + G[0][1] * n2 * dSigma_hat[1];
+                            const du2_hat = G[1][0] * n1 * dSigma_hat[0] + G[1][1] * n2 * dSigma_hat[1];
+                            
+                            strain_hat[0][i][j] = new Complex(n1 * du1_hat, 0);
+                            strain_hat[1][i][j] = new Complex(n2 * du2_hat, 0);
+                        }
+                    }
+                    
+                    const de0 = ifft2Real(strain_hat[0], N);
+                    const de1 = ifft2Real(strain_hat[1], N);
+                    
+                    let maxChange = 0;
+                    for (let idx = 0; idx < N * N; idx++) {
+                        const change0 = Math.abs(de0[idx]);
+                        const change1 = Math.abs(de1[idx]);
+                        maxChange = Math.max(maxChange, change0, change1);
+                        eps[0][idx] += de0[idx];
+                        eps[1][idx] += de1[idx];
+                    }
+                    
+                    if (maxChange < tol) break;
+                }
+                
+                return eps;
+            }
+            
+            computeStressEnergy(strain, eigenstrain, appliedStress) {
+                const N = this.N;
+                const stress = [new Float32Array(N * N), new Float32Array(N * N)];
+                const energy = new Float32Array(N * N);
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    const e0 = eigenstrain[idx];
+                    const e1 = eigenstrain[idx];
+                    
+                    stress[0][idx] = this.C11 * (strain[0][idx] - e0) + this.C12 * (strain[1][idx] - e1);
+                    stress[1][idx] = this.C12 * (strain[0][idx] - e0) + this.C11 * (strain[1][idx] - e1);
+                    
+                    stress[0][idx] += appliedStress;
+                    
+                    energy[idx] = 0.5 * (
+                        stress[0][idx] * (strain[0][idx] - e0) +
+                        stress[1][idx] * (strain[1][idx] - e1)
+                    ) - appliedStress * strain[0][idx];
+                }
+                
+                return { stress, energy };
+            }
+            
+            computeElasticPotentialDerivative(strain, eigenstrain, c, misfit) {
+                const N = this.N;
+                const dFdc = new Float32Array(N * N);
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    const e0 = misfit * (c[idx] - 0.5);
+                    
+                    const sigma_xx = this.C11 * (strain[0][idx] - e0) + this.C12 * (strain[1][idx] - e0);
+                    const sigma_yy = this.C12 * (strain[0][idx] - e0) + this.C11 * (strain[1][idx] - e0);
+                    
+                    dFdc[idx] = -misfit * (sigma_xx + sigma_yy);
+                }
+                
+                return dFdc;
+            }
+        }
+
+        class SuperalloySolver {
+            constructor(params) {
+                this.N = params.N || 64;
+                this.L = params.L || 64.0;
+                this.dt = params.dt || 0.05;
+                this.M = params.M || 1.0;
+                this.kappa = params.kappa || 2.0;
+                this.W = params.W || 1.0;
+                this.misfit = params.misfit || 0.005;
+                this.appliedStress = params.appliedStress || 200;
+                this.volumeFraction = params.volumeFraction || 0.3;
+                
+                const A = params.anisotropy || 3.2;
+                const C44 = 80e3;
+                const C11_C12 = 2 * C44 / A;
+                const C12 = 120e3;
+                this.C11 = C12 + C11_C12;
+                this.C12 = C12;
+                this.C44 = C44;
+                
+                this.elasticSolver = new ElasticSolver(this.N, this.L, this.C11, this.C12, this.C44);
+                
+                this.c = new Float32Array(this.N * this.N);
+                this.time = 0;
+                this.step = 0;
+                
+                this.k2 = new Float32Array(this.N * this.N);
+                for (let i = 0; i < this.N; i++) {
+                    for (let j = 0; j < this.N; j++) {
+                        const kx = 2 * Math.PI * ((i <= this.N/2) ? i : i - this.N) / this.L;
+                        const ky = 2 * Math.PI * ((j <= this.N/2) ? j : j - this.N) / this.L;
+                        this.k2[i * this.N + j] = kx * kx + ky * ky;
+                    }
+                }
+                
+                this.elasticEnergy = new Float32Array(this.N * this.N);
+                this.stress = null;
+                
+                this.precalcETDRK4();
+                this.initializeMicrostructure();
+            }
+            
+            precalcETDRK4() {
+                const N = this.N;
+                this.expL_dt = new Array(N);
+                this.expL_dt2 = new Array(N);
+                this.Q_coeff = new Array(N);
+                this.f1_coeff = new Array(N);
+                this.f2_coeff = new Array(N);
+                this.f3_coeff = new Array(N);
+                
+                for (let i = 0; i < N; i++) {
+                    this.expL_dt[i] = new Array(N);
+                    this.expL_dt2[i] = new Array(N);
+                    this.Q_coeff[i] = new Array(N);
+                    this.f1_coeff[i] = new Array(N);
+                    this.f2_coeff[i] = new Array(N);
+                    this.f3_coeff[i] = new Array(N);
+                    
+                    for (let j = 0; j < N; j++) {
+                        const idx = i * N + j;
+                        const k4 = this.k2[idx] * this.k2[idx];
+                        const L = -this.M * this.kappa * k4;
+                        const L_dt = L * this.dt;
+                        const L_dt2 = L_dt / 2;
+                        
+                        if (Math.abs(L_dt) < 1e-10) {
+                            this.expL_dt[i][j] = new Complex(1, 0);
+                            this.expL_dt2[i][j] = new Complex(1, 0);
+                            this.Q_coeff[i][j] = new Complex(this.dt / 2, 0);
+                            this.f1_coeff[i][j] = new Complex(this.dt / 6, 0);
+                            this.f2_coeff[i][j] = new Complex(this.dt / 3, 0);
+                            this.f3_coeff[i][j] = new Complex(this.dt / 6, 0);
+                        } else {
+                            const eL_dt = Complex.exp(new Complex(L_dt, 0));
+                            const eL_dt2 = Complex.exp(new Complex(L_dt2, 0));
+                            
+                            this.expL_dt[i][j] = eL_dt;
+                            this.expL_dt2[i][j] = eL_dt2;
+                            
+                            const Q_re = (eL_dt2.re - 1) / L;
+                            const Q_im = eL_dt2.im / L;
+                            this.Q_coeff[i][j] = new Complex(Q_re, Q_im);
+                            
+                            const f1_re = (-4 - L_dt + (4 - 3 * L_dt + L_dt * L_dt) * eL_dt.re + 
+                                          4 * eL_dt2.re * (2 + L_dt)) / (6 * L * L * L_dt);
+                            const f1_im = ((4 - 3 * L_dt + L_dt * L_dt) * eL_dt.im + 
+                                          4 * eL_dt2.im * (2 + L_dt)) / (6 * L * L * L_dt);
+                            this.f1_coeff[i][j] = new Complex(f1_re, f1_im);
+                            
+                            const f2_re = (2 + L_dt + (-2 + L_dt) * eL_dt.re - 
+                                          4 * L_dt * eL_dt2.re) / (3 * L * L * L_dt);
+                            const f2_im = ((-2 + L_dt) * eL_dt.im - 4 * L_dt * eL_dt2.im) / 
+                                          (3 * L * L * L_dt);
+                            this.f2_coeff[i][j] = new Complex(f2_re, f2_im);
+                            
+                            const f3_re = (-4 - 3 * L_dt - L_dt * L_dt + (4 - L_dt) * eL_dt.re +
+                                          4 * eL_dt2.re * (2 - L_dt)) / (6 * L * L * L_dt);
+                            const f3_im = ((4 - L_dt) * eL_dt.im + 4 * eL_dt2.im * (2 - L_dt)) /
+                                          (6 * L * L * L_dt);
+                            this.f3_coeff[i][j] = new Complex(f3_re, f3_im);
+                        }
+                    }
+                }
+            }
+            
+            initializeMicrostructure() {
+                const N = this.N;
+                const c0 = this.volumeFraction;
+                
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        const idx = i * N + j;
+                        this.c[idx] = c0 + 0.05 * (Math.random() * 2 - 1);
+                        this.c[idx] = Math.max(0.01, Math.min(0.99, this.c[idx]));
+                    }
+                }
+                
+                this.time = 0;
+                this.step = 0;
+            }
+            
+            computeChemicalPotential(c) {
+                const N = this.N;
+                const mu = new Float32Array(N * N);
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    const ci = c[idx];
+                    mu[idx] = this.W * 2 * ci * (1 - ci) * (1 - 2 * ci);
+                }
+                
+                const c_hat = fft2Real(c, N);
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        c_hat[i][j] = c_hat[i][j].mulReal(-this.kappa * this.k2[i * N + j]);
+                    }
+                }
+                
+                const grad_term = ifft2Real(c_hat, N);
+                for (let idx = 0; idx < N * N; idx++) {
+                    mu[idx] += grad_term[idx];
+                }
+                
+                return mu;
+            }
+            
+            computeEigenstrain(c) {
+                const N = this.N;
+                const eigenstrain = new Float32Array(N * N);
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    eigenstrain[idx] = this.misfit * (c[idx] - 0.5);
+                }
+                
+                return eigenstrain;
+            }
+            
+            computeTotalPotential(c) {
+                const N = this.N;
+                
+                const mu_chem = this.computeChemicalPotential(c);
+                
+                const eigenstrain = this.computeEigenstrain(c);
+                const strain = this.elasticSolver.solveElasticity(eigenstrain, 10);
+                const elasticResult = this.elasticSolver.computeStressEnergy(strain, eigenstrain, this.appliedStress);
+                this.elasticEnergy = elasticResult.energy;
+                this.stress = elasticResult.stress;
+                
+                const dFdc_elast = this.elasticSolver.computeElasticPotentialDerivative(
+                    strain, eigenstrain, c, this.misfit
+                );
+                
+                const mu_total = new Float32Array(N * N);
+                for (let idx = 0; idx < N * N; idx++) {
+                    mu_total[idx] = mu_chem[idx] + dFdc_elast[idx];
+                }
+                
+                return mu_total;
+            }
+            
+            computeNonlinear(c) {
+                const N = this.N;
+                const mu = this.computeTotalPotential(c);
+                
+                const mu_hat = fft2Real(mu, N);
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        mu_hat[i][j] = mu_hat[i][j].mulReal(-this.M * this.k2[i * N + j]);
+                    }
+                }
+                
+                return mu_hat;
+            }
+            
+            copyComplex2D(arr, N) {
+                const copy = new Array(N);
+                for (let i = 0; i < N; i++) {
+                    copy[i] = new Array(N);
+                    for (let j = 0; j < N; j++) {
+                        copy[i][j] = new Complex(arr[i][j].re, arr[i][j].im);
+                    }
+                }
+                return copy;
+            }
+            
+            stepForward() {
+                const N = this.N;
+                
+                const c_hat = fft2Real(this.c, N);
+                const N_hat = this.computeNonlinear(this.c);
+                
+                const a_hat = new Array(N);
+                for (let i = 0; i < N; i++) {
+                    a_hat[i] = new Array(N);
+                    for (let j = 0; j < N; j++) {
+                        a_hat[i][j] = this.expL_dt2[i][j].mul(c_hat[i][j]).add(
+                            this.Q_coeff[i][j].mul(N_hat[i][j])
+                        );
+                    }
+                }
+                
+                const a_real = ifft2Real(this.copyComplex2D(a_hat, N), N);
+                const Na_hat = this.computeNonlinear(a_real);
+                
+                const b_hat = new Array(N);
+                for (let i = 0; i < N; i++) {
+                    b_hat[i] = new Array(N);
+                    for (let j = 0; j < N; j++) {
+                        b_hat[i][j] = this.expL_dt2[i][j].mul(c_hat[i][j]).add(
+                            this.Q_coeff[i][j].mul(Na_hat[i][j])
+                        );
+                    }
+                }
+                
+                const b_real = ifft2Real(this.copyComplex2D(b_hat, N), N);
+                const Nb_hat = this.computeNonlinear(b_real);
+                
+                const c_hat_stage = new Array(N);
+                for (let i = 0; i < N; i++) {
+                    c_hat_stage[i] = new Array(N);
+                    for (let j = 0; j < N; j++) {
+                        c_hat_stage[i][j] = this.expL_dt2[i][j].mul(a_hat[i][j]).add(
+                            this.Q_coeff[i][j].mul(Nb_hat[i][j].mulReal(2).sub(N_hat[i][j]))
+                        );
+                    }
+                }
+                
+                const c_real = ifft2Real(this.copyComplex2D(c_hat_stage, N), N);
+                const Nc_hat = this.computeNonlinear(c_real);
+                
+                const c_new_hat = new Array(N);
+                for (let i = 0; i < N; i++) {
+                    c_new_hat[i] = new Array(N);
+                    for (let j = 0; j < N; j++) {
+                        const term1 = this.expL_dt[i][j].mul(c_hat[i][j]);
+                        const term2 = this.f1_coeff[i][j].mul(N_hat[i][j]);
+                        const term3 = this.f2_coeff[i][j].mul(Na_hat[i][j].add(Nb_hat[i][j]));
+                        const term4 = this.f3_coeff[i][j].mul(Nc_hat[i][j]);
+                        c_new_hat[i][j] = term1.add(term2).add(term3).add(term4);
+                    }
+                }
+                
+                this.c = ifft2Real(c_new_hat, N);
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    this.c[idx] = Math.max(0.01, Math.min(0.99, this.c[idx]));
+                }
+                
+                this.time += this.dt;
+                this.step++;
+            }
+            
+            getVolumeFraction() {
+                let sum = 0;
+                for (let i = 0; i < this.N * this.N; i++) {
+                    sum += this.c[i];
+                }
+                return sum / (this.N * this.N);
+            }
+            
+            getAverageEnergy() {
+                let sum = 0;
+                for (let i = 0; i < this.N * this.N; i++) {
+                    sum += this.elasticEnergy[i];
+                }
+                return sum / (this.N * this.N);
+            }
+            
+            getAverageParticleSize() {
+                const N = this.N;
+                const binary = new Uint8Array(N * N);
+                const threshold = 0.6;
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    binary[idx] = this.c[idx] > threshold ? 1 : 0;
+                }
+                
+                const labels = new Int32Array(N * N);
+                let currentLabel = 0;
+                
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        const idx = i * N + j;
+                        if (binary[idx] === 1 && labels[idx] === 0) {
+                            currentLabel++;
+                            this.floodFill(binary, labels, i, j, currentLabel);
+                        }
+                    }
+                }
+                
+                if (currentLabel === 0) return 0;
+                
+                const sizes = new Array(currentLabel + 1).fill(0);
+                for (let idx = 0; idx < N * N; idx++) {
+                    if (labels[idx] > 0) sizes[labels[idx]]++;
+                }
+                
+                let sum = 0, count = 0;
+                for (let i = 1; i <= currentLabel; i++) {
+                    if (sizes[i] > 0) { sum += sizes[i]; count++; }
+                }
+                
+                if (count === 0) return 0;
+                return Math.sqrt(sum / count / Math.PI) * (this.L / N);
+            }
+            
+            floodFill(binary, labels, i, j, label) {
+                const N = this.N;
+                const stack = [[i, j]];
+                
+                while (stack.length > 0) {
+                    const [x, y] = stack.pop();
+                    const idx = x * N + y;
+                    
+                    if (x < 0 || x >= N || y < 0 || y >= N) continue;
+                    if (binary[idx] === 0 || labels[idx] !== 0) continue;
+                    
+                    labels[idx] = label;
+                    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+                }
+            }
+            
+            checkStability() {
+                for (let i = 0; i < this.N * this.N; i++) {
+                    if (isNaN(this.c[i]) || !isFinite(this.c[i])) return false;
+                }
+                return true;
+            }
+        }
+
+        class Visualizer {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.solver = null;
+                this.running = false;
+                this.animationId = null;
+                this.displayMode = 'concentration';
+                
+                this.timeHistory = [];
+                this.energyHistory = [];
+                this.sizeHistory = [];
+                this.energyChart = null;
+                this.sizeChart = null;
+                
+                this.initCharts();
+                this.bindEvents();
+                this.reset();
+            }
+            
+            initCharts() {
+                const ctx1 = document.getElementById('energyChart').getContext('2d');
+                this.energyChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '弹性能',
+                            data: [],
+                            borderColor: '#fbbf24',
+                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { title: { display: true, text: '时间', color: '#888' },
+                                 grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } },
+                            y: { title: { display: true, text: '能量', color: '#888' },
+                                 grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } }
+                        },
+                        plugins: { legend: { labels: { color: '#ccc', font: { size: 10 } } } }
+                    }
+                });
+                
+                const ctx2 = document.getElementById('sizeChart').getContext('2d');
+                this.sizeChart = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'γ\'平均尺寸',
+                            data: [],
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { title: { display: true, text: '时间', color: '#888' },
+                                 grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } },
+                            y: { title: { display: true, text: '尺寸 (nm)', color: '#888' },
+                                 grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } }
+                        },
+                        plugins: { legend: { labels: { color: '#ccc', font: { size: 10 } } } }
+                    }
+                });
+            }
+            
+            bindEvents() {
+                document.getElementById('startBtn').addEventListener('click', () => this.toggle());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                
+                document.getElementById('displayMode').addEventListener('change', (e) => {
+                    this.displayMode = e.target.value;
+                    this.updateDisplay();
+                });
+            }
+            
+            reset() {
+                this.stop();
+                
+                const params = {
+                    N: parseInt(document.getElementById('gridSize').value),
+                    dt: parseFloat(document.getElementById('dt').value),
+                    misfit: parseFloat(document.getElementById('misfit').value),
+                    appliedStress: parseFloat(document.getElementById('appliedStress').value),
+                    anisotropy: parseFloat(document.getElementById('anisotropy').value),
+                    volumeFraction: parseFloat(document.getElementById('volumeFraction').value)
+                };
+                
+                this.solver = new SuperalloySolver(params);
+                
+                this.timeHistory = [];
+                this.energyHistory = [];
+                this.sizeHistory = [];
+                this.updateDisplay();
+                this.updateCharts();
+                this.updateStability(true);
+            }
+            
+            toggle() {
+                if (this.running) {
+                    this.stop();
+                    document.getElementById('startBtn').textContent = '▶ 开始';
+                } else {
+                    this.start();
+                    document.getElementById('startBtn').textContent = '⏸ 暂停';
+                }
+            }
+            
+            start() {
+                this.running = true;
+                this.animate();
+            }
+            
+            stop() {
+                this.running = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+            
+            animate() {
+                if (!this.running) return;
+                
+                for (let i = 0; i < 2; i++) {
+                    this.solver.stepForward();
+                }
+                
+                if (this.solver.step % 5 === 0) {
+                    const energy = this.solver.getAverageEnergy();
+                    const size = this.solver.getAverageParticleSize();
+                    this.timeHistory.push(this.solver.time);
+                    this.energyHistory.push(energy);
+                    this.sizeHistory.push(size);
+                    this.updateCharts();
+                    this.updateStability(this.solver.checkStability());
+                }
+                
+                this.updateDisplay();
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+            
+            updateStability(isStable) {
+                const item = document.getElementById('stabilityItem');
+                const value = document.getElementById('stabilityValue');
+                
+                if (isStable) {
+                    item.className = 'info-item stable';
+                    value.textContent = '✓ 稳定';
+                } else {
+                    item.className = 'info-item unstable';
+                    value.textContent = '✗ 溢出';
+                    this.stop();
+                }
+            }
+            
+            updateDisplay() {
+                const N = this.solver.N;
+                const imageData = this.ctx.createImageData(N, N);
+                const data = imageData.data;
+                
+                const c = this.solver.c;
+                const energy = this.solver.elasticEnergy;
+                const stress = this.solver.stress;
+                
+                let dataArray, minVal, maxVal;
+                
+                if (this.displayMode === 'concentration') {
+                    dataArray = c;
+                    minVal = 0;
+                    maxVal = 1;
+                } else if (this.displayMode === 'energy') {
+                    dataArray = energy;
+                    minVal = Math.min(...energy);
+                    maxVal = Math.max(...energy);
+                } else {
+                    dataArray = stress ? stress[0] : c;
+                    minVal = Math.min(...dataArray);
+                    maxVal = Math.max(...dataArray);
+                }
+                
+                const range = maxVal - minVal || 1;
+                
+                for (let idx = 0; idx < N * N; idx++) {
+                    const val = (dataArray[idx] - minVal) / range;
+                    const normalized = Math.max(0, Math.min(1, val));
+                    
+                    const pixelIdx = idx * 4;
+                    
+                    if (this.displayMode === 'concentration') {
+                        const t = normalized;
+                        data[pixelIdx] = Math.floor(30 + t * 200);
+                        data[pixelIdx + 1] = Math.floor(58 + t * 150);
+                        data[pixelIdx + 2] = Math.floor(95 + (1 - t) * 100);
+                    } else if (this.displayMode === 'energy') {
+                        data[pixelIdx] = Math.floor(255 * normalized);
+                        data[pixelIdx + 1] = Math.floor(140 * (1 - Math.abs(normalized - 0.5) * 2));
+                        data[pixelIdx + 2] = Math.floor(255 * (1 - normalized));
+                    } else {
+                        data[pixelIdx] = Math.floor(normalized > 0.5 ? 255 * normalized : 100);
+                        data[pixelIdx + 1] = Math.floor(100 * (1 - normalized));
+                        data[pixelIdx + 2] = Math.floor(255 * (1 - normalized));
+                    }
+                    data[pixelIdx + 3] = 255;
+                }
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = N;
+                tempCanvas.height = N;
+                tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
+                
+                this.ctx.imageSmoothingEnabled = false;
+                this.ctx.drawImage(tempCanvas, 0, 0, this.canvas.width, this.canvas.height);
+                
+                document.getElementById('timeValue').textContent = this.solver.time.toFixed(1);
+                document.getElementById('stepValue').textContent = this.solver.step;
+                document.getElementById('vfValue').textContent = this.solver.getVolumeFraction().toFixed(2);
+            }
+            
+            updateCharts() {
+                if (this.timeHistory.length < 2) return;
+                
+                this.energyChart.data.labels = this.timeHistory;
+                this.energyChart.data.datasets[0].data = this.energyHistory;
+                this.energyChart.update('none');
+                
+                this.sizeChart.data.labels = this.timeHistory;
+                this.sizeChart.data.datasets[0].data = this.sizeHistory;
+                this.sizeChart.update('none');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            new Visualizer();
+        });
+    </script>
+</body>
+</html>

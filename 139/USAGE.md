@@ -255,12 +255,163 @@ for T in temperatures:
     mfpts.append((T, mfpt, err))
 ```
 
+## 全原子力场 (AMBER风格)
+
+### 能量项 (`amber_forcefield.py:5-222`)
+
+**AmberForceField** 类实现了简化的AMBER力场：
+
+1. **键拉伸势能**
+   ```
+   V_bond = (1/2) * k_bond * (r - r0)^2
+   k_bond = 450 kcal/(mol·Å²), r0 = 1.526 Å
+   ```
+
+2. **键角弯曲势能**
+   ```
+   V_angle = (1/2) * k_angle * (θ - θ0)^2
+   k_angle = 50 kcal/(mol·rad²), θ0 = 116°
+   ```
+
+3. **二面角扭转势能**
+   ```
+   V_dihedral = k_dihedral * (1 + cos(nφ - δ))
+   k_dihedral = 2.5 kcal/mol, n = 2, δ = 180°
+   ```
+
+4. **Lennard-Jones势能**
+   ```
+   V_LJ = 4ε[(σ/r)^12 - (σ/r)^6]
+   ε = 0.2 kcal/mol, σ = 4.0 Å (天然接触)
+   ```
+
+### Go-AMBER混合模型
+
+`GoAmberHybrid` 类结合两种力场的优势：
+
+```python
+sim = GoAmberHybrid(
+    num_beads=30,
+    native_contacts=contacts,
+    native_distances=distances,
+    native_positions=native_positions,
+    weight_amber=0.3,   # AMBER力场权重
+    weight_go=0.7       # Go模型权重
+)
+```
+
+## 副本交换分子动力学 (REMD)
+
+### 原理
+
+REMD通过在不同温度下运行多个副本，并定期尝试交换构象，帮助系统克服能量势垒：
+
+```
+P_exchange = min[1, exp((β_i - β_j)(E_i - E_j))]
+```
+
+其中 β = 1/(k_B T)
+
+### 使用方法
+
+```python
+from remd import REMD
+
+remd = REMD(
+    num_replicas=8,           # 副本数
+    T_min=0.6,                # 最低温度
+    T_max=1.5,                # 最高温度
+    num_beads=25,
+    native_contacts=contacts,
+    native_distances=distances,
+    native_positions=native_positions,
+    use_hybrid_ff=False,      # 是否使用混合力场
+    scheduler='geometric'     # 温度调度
+)
+
+results = remd.run_remd(
+    n_cycles=100,              # 循环数
+    n_steps_per_cycle=1000,    # 每循环步数
+    exchange_interval=1,       # 交换间隔
+    record_interval=5          # 记录间隔
+)
+```
+
+### 结果分析
+
+REMD自动计算并绘制：
+- 各副本的Q值和能量随时间变化
+- 熔解曲线 (平均Q vs 温度)
+- 副本交换接受率
+- Q分布和自由能面投影
+
+**目标交换率**: 20-30%（过低则副本独立，过高则效率低）
+
+## 折叠路径分析
+
+### 序参数计算
+
+`FoldingPathAnalyzer` 类提供多种分析工具：
+
+```python
+from remd import FoldingPathAnalyzer
+
+analyzer = FoldingPathAnalyzer(trajectory, native_positions)
+
+# 计算序参数
+order_params = analyzer.compute_order_parameters()
+# 返回: Q值序列、RMSD序列
+
+# 检测折叠/去折叠事件
+transitions = analyzer.find_folding_transitions(Q_threshold=0.8)
+
+# 接触形成顺序
+contact_order = analyzer.compute_contact_order(native_contacts)
+# early_contacts, late_contacts
+
+# 状态聚类
+clusters = analyzer.cluster_states(n_clusters=5)
+# labels, centers, populations
+```
+
+### 自由能面投影
+
+在 (Q, RMSD) 二维空间上可视化自由能面，识别折叠中间态。
+
+## 采样效率对比
+
+```python
+from remd import compare_sampling_efficiency
+
+efficiency = compare_sampling_efficiency(normal_md_Q, remd_Q)
+# 返回: 方差比、Q值范围、折叠概率、效率增益
+```
+
+典型情况下，REMD的采样效率比常规MD高 **3-10倍**，取决于系统崎岖程度。
+
 ## 注意事项
 
-1. **计算资源**: MFPT计算需要大量轨迹，建议使用多核并行
-2. **单位**: 所有物理量使用约化单位
-3. **收敛性**: MFPT计算需确保轨迹充分采样
-4. **内存**: 长轨迹保存需注意内存使用
+1. **计算资源**: 
+   - MFPT计算需要大量轨迹，建议使用多核并行
+   - REMD计算量随副本数线性增长
+   - 8副本REMD ≈ 8倍常规MD计算量
+
+2. **REMD参数调优**:
+   - 副本数: 6-12个（覆盖折叠温度范围）
+   - 温度间隔: 使交换率保持在20-30%
+   - 几何温度调度通常优于线性
+
+3. **单位**: 
+   - 所有物理量默认使用约化单位
+   - 使用 `units.py` 进行真实单位转换
+
+4. **收敛性**: 
+   - MFPT计算需确保轨迹充分采样
+   - REMD需要足够的交换次数
+
+5. **内存**: 
+   - 长轨迹保存需注意内存使用
+   - 建议只记录关键帧（每100-1000步）
 
 ## 参考文献
 
@@ -268,3 +419,7 @@ for T in temperatures:
 2. Clementi, C., Nymeyer, H., & Onuchic, J. N. (2000). 
    Topological and energetic factors: what determines the structural details 
    of the transition state ensemble and "en-route" intermediates for protein folding?
+3. Sugita, Y., & Okamoto, Y. (1999). 
+   Replica-exchange molecular dynamics method for protein folding.
+4. Cornell, W. D., et al. (1995). 
+   A second generation force field for the simulation of proteins, nucleic acids, and organic molecules.
