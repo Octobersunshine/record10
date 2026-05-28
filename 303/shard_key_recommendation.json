@@ -1,0 +1,728 @@
+{
+  "recommended_shard_key": "user_id+product_id",
+  "is_composite_key": true,
+  "confidence_score": 85.77,
+  "ranking": [
+    {
+      "field": "product_id",
+      "score": 74.22
+    },
+    {
+      "field": "timestamp",
+      "score": 63.24
+    },
+    {
+      "field": "category",
+      "score": 60.53
+    },
+    {
+      "field": "user_id",
+      "score": 55.38
+    },
+    {
+      "field": "region",
+      "score": 26.87
+    }
+  ],
+  "composite_ranking": [
+    {
+      "key": "user_id+product_id",
+      "score": 85.77
+    },
+    {
+      "key": "product_id+category",
+      "score": 83.05
+    },
+    {
+      "key": "product_id+region",
+      "score": 82.97
+    },
+    {
+      "key": "user_id+category",
+      "score": 63.79
+    },
+    {
+      "key": "region+category",
+      "score": 62.48
+    },
+    {
+      "key": "user_id+region",
+      "score": 53.03
+    }
+  ],
+  "num_shards": 2,
+  "expected_distribution": {
+    "shard_distribution": {
+      "shard_0": {
+        "record_count": 4746,
+        "percentage": 47.46
+      },
+      "shard_1": {
+        "record_count": 5254,
+        "percentage": 52.54
+      }
+    },
+    "balance_quality": "excellent",
+    "coefficient_of_variation": 0.0508
+  },
+  "write_distribution_analysis": {
+    "user_id": {
+      "total_writes": 4000,
+      "unique_values": 11,
+      "shard_counts": {
+        "shard_0": 2317,
+        "shard_1": 1683
+      },
+      "shard_percentages": {
+        "shard_0": 57.92,
+        "shard_1": 42.08
+      },
+      "mean": 2000.0,
+      "variance": 100489.0,
+      "std_dev": 317.0,
+      "coefficient_of_variation": 0.1585,
+      "max_shard_writes": 2317,
+      "min_shard_writes": 1683,
+      "max_min_ratio": 1.38,
+      "hotspot_factor": 1.0,
+      "write_balance_score": 84.15
+    },
+    "product_id": {
+      "total_writes": 4000,
+      "unique_values": 16,
+      "shard_counts": {
+        "shard_0": 1895,
+        "shard_1": 2105
+      },
+      "shard_percentages": {
+        "shard_0": 47.38,
+        "shard_1": 52.62
+      },
+      "mean": 2000.0,
+      "variance": 11025.0,
+      "std_dev": 105.0,
+      "coefficient_of_variation": 0.0525,
+      "max_shard_writes": 2105,
+      "min_shard_writes": 1895,
+      "max_min_ratio": 1.11,
+      "hotspot_factor": 1.0,
+      "write_balance_score": 94.75
+    },
+    "timestamp": {
+      "total_writes": 4000,
+      "unique_values": 1,
+      "shard_counts": {
+        "shard_0": 2000,
+        "shard_1": 2000
+      },
+      "shard_percentages": {
+        "shard_0": 50.0,
+        "shard_1": 50.0
+      },
+      "mean": 2000.0,
+      "variance": 0.0,
+      "std_dev": 0.0,
+      "coefficient_of_variation": 0.0,
+      "max_shard_writes": 2000,
+      "min_shard_writes": 2000,
+      "max_min_ratio": 1.0,
+      "hotspot_factor": 1.9828,
+      "write_balance_score": 100.0
+    },
+    "category": {
+      "total_writes": 4000,
+      "unique_values": 4,
+      "shard_counts": {
+        "shard_0": 2319,
+        "shard_1": 1681
+      },
+      "shard_percentages": {
+        "shard_0": 57.98,
+        "shard_1": 42.02
+      },
+      "mean": 2000.0,
+      "variance": 101761.0,
+      "std_dev": 319.0,
+      "coefficient_of_variation": 0.1595,
+      "max_shard_writes": 2319,
+      "min_shard_writes": 1681,
+      "max_min_ratio": 1.38,
+      "hotspot_factor": 1.0,
+      "write_balance_score": 84.05
+    },
+    "region": {
+      "total_writes": 4000,
+      "unique_values": 5,
+      "shard_counts": {
+        "shard_0": 0,
+        "shard_1": 4000
+      },
+      "shard_percentages": {
+        "shard_0": 0.0,
+        "shard_1": 100.0
+      },
+      "mean": 2000.0,
+      "variance": 4000000.0,
+      "std_dev": 2000.0,
+      "coefficient_of_variation": 1.0,
+      "max_shard_writes": 4000,
+      "min_shard_writes": 0,
+      "max_min_ratio": Infinity,
+      "hotspot_factor": 1.0,
+      "write_balance_score": 0
+    }
+  },
+  "operation_distribution": {
+    "total_operations": 10000,
+    "write_count": 4000,
+    "read_count": 6000,
+    "write_ratio": 40.0,
+    "read_ratio": 60.0
+  },
+  "detailed_scores": {
+    "user_id": {
+      "total_score": 55.38,
+      "component_scores": {
+        "access_score": 34.19,
+        "balance_score": 0,
+        "cardinality_score": 50.0,
+        "query_type_score": 73.81,
+        "write_balance_score": 84.15,
+        "raw_write_balance_score": 84.15,
+        "hotspot_penalty": 0.0
+      },
+      "metrics": {
+        "query_percentage": 34.19,
+        "unique_values": 69,
+        "cardinality_ratio": 0.69,
+        "point_query_ratio": 69.03,
+        "range_query_ratio": 30.97,
+        "write_variance": 100489.0,
+        "write_cv": 0.1585,
+        "write_hotspot_factor": 1.0,
+        "write_ratio": 40.0,
+        "hotspot_warning": ""
+      },
+      "write_distribution": {
+        "shard_0": 57.92,
+        "shard_1": 42.08
+      }
+    },
+    "product_id": {
+      "total_score": 74.22,
+      "component_scores": {
+        "access_score": 25.7,
+        "balance_score": 78.44,
+        "cardinality_score": 80.0,
+        "query_type_score": 74.12,
+        "write_balance_score": 94.75,
+        "raw_write_balance_score": 94.75,
+        "hotspot_penalty": 0.0
+      },
+      "metrics": {
+        "query_percentage": 25.7,
+        "unique_values": 500,
+        "cardinality_ratio": 5.0,
+        "point_query_ratio": 70.62,
+        "range_query_ratio": 29.38,
+        "write_variance": 11025.0,
+        "write_cv": 0.0525,
+        "write_hotspot_factor": 1.0,
+        "write_ratio": 40.0,
+        "hotspot_warning": ""
+      },
+      "write_distribution": {
+        "shard_0": 47.38,
+        "shard_1": 52.62
+      }
+    },
+    "timestamp": {
+      "total_score": 63.24,
+      "component_scores": {
+        "access_score": 19.82,
+        "balance_score": 80.0,
+        "cardinality_score": 100.0,
+        "query_type_score": 47.98,
+        "write_balance_score": 68.69,
+        "raw_write_balance_score": 100.0,
+        "hotspot_penalty": 31.31
+      },
+      "metrics": {
+        "query_percentage": 19.82,
+        "unique_values": 10000,
+        "cardinality_ratio": 100.0,
+        "point_query_ratio": 70.03,
+        "range_query_ratio": 29.97,
+        "write_variance": 0.0,
+        "write_cv": 0.0,
+        "write_hotspot_factor": 1.9828,
+        "write_ratio": 40.0,
+        "hotspot_warning": "写入热点检测：时间戳分片会导致最新分片写入压力集中"
+      },
+      "write_distribution": {
+        "shard_0": 50.0,
+        "shard_1": 50.0
+      }
+    },
+    "category": {
+      "total_score": 60.53,
+      "component_scores": {
+        "access_score": 10.5,
+        "balance_score": 96.25,
+        "cardinality_score": 20.0,
+        "query_type_score": 73.73,
+        "write_balance_score": 84.05,
+        "raw_write_balance_score": 84.05,
+        "hotspot_penalty": 0.0
+      },
+      "metrics": {
+        "query_percentage": 10.5,
+        "unique_values": 5,
+        "cardinality_ratio": 0.05,
+        "point_query_ratio": 68.67,
+        "range_query_ratio": 31.33,
+        "write_variance": 101761.0,
+        "write_cv": 0.1595,
+        "write_hotspot_factor": 1.0,
+        "write_ratio": 40.0,
+        "hotspot_warning": ""
+      },
+      "write_distribution": {
+        "shard_0": 57.98,
+        "shard_1": 42.02
+      }
+    },
+    "region": {
+      "total_score": 26.87,
+      "component_scores": {
+        "access_score": 9.79,
+        "balance_score": 96.77,
+        "cardinality_score": 20.0,
+        "query_type_score": 73.97,
+        "write_balance_score": 0,
+        "raw_write_balance_score": 0,
+        "hotspot_penalty": 0.0
+      },
+      "metrics": {
+        "query_percentage": 9.79,
+        "unique_values": 5,
+        "cardinality_ratio": 0.05,
+        "point_query_ratio": 69.87,
+        "range_query_ratio": 30.13,
+        "write_variance": 4000000.0,
+        "write_cv": 1.0,
+        "write_hotspot_factor": 1.0,
+        "write_ratio": 40.0,
+        "hotspot_warning": ""
+      },
+      "write_distribution": {
+        "shard_0": 0.0,
+        "shard_1": 100.0
+      }
+    }
+  },
+  "composite_key_analysis": {
+    "user_id+product_id": {
+      "fields": [
+        "user_id",
+        "product_id"
+      ],
+      "total_score": 85.77,
+      "unique_combinations": 2756,
+      "combined_cardinality_ratio": 27.56,
+      "balance_cv": 0.0353,
+      "write_balance_cv": 0.077,
+      "write_balance_score": 92.3,
+      "shard_distribution": {
+        "shard_0": 2380,
+        "shard_1": 2462,
+        "shard_2": 2617,
+        "shard_3": 2541
+      },
+      "shard_percentages": {
+        "shard_0": 23.8,
+        "shard_1": 24.62,
+        "shard_2": 26.17,
+        "shard_3": 25.41
+      },
+      "field_coverage": {
+        "user_id": 1.0,
+        "product_id": 1.0
+      },
+      "hotspot_penalty": 0.0
+    },
+    "user_id+region": {
+      "fields": [
+        "user_id",
+        "region"
+      ],
+      "total_score": 53.03,
+      "unique_combinations": 180,
+      "combined_cardinality_ratio": 1.8,
+      "balance_cv": 0.5964,
+      "write_balance_cv": 0.5303,
+      "write_balance_score": 46.97,
+      "shard_distribution": {
+        "shard_0": 1569,
+        "shard_1": 1193,
+        "shard_2": 2238,
+        "shard_3": 5000
+      },
+      "shard_percentages": {
+        "shard_0": 15.69,
+        "shard_1": 11.93,
+        "shard_2": 22.38,
+        "shard_3": 50.0
+      },
+      "field_coverage": {
+        "user_id": 1.0,
+        "region": 0.5
+      },
+      "hotspot_penalty": 0.0
+    },
+    "user_id+category": {
+      "fields": [
+        "user_id",
+        "category"
+      ],
+      "total_score": 63.79,
+      "unique_combinations": 182,
+      "combined_cardinality_ratio": 1.82,
+      "balance_cv": 0.3775,
+      "write_balance_cv": 0.3465,
+      "write_balance_score": 65.35,
+      "shard_distribution": {
+        "shard_0": 3482,
+        "shard_1": 2769,
+        "shard_2": 2808,
+        "shard_3": 941
+      },
+      "shard_percentages": {
+        "shard_0": 34.82,
+        "shard_1": 27.69,
+        "shard_2": 28.08,
+        "shard_3": 9.41
+      },
+      "field_coverage": {
+        "user_id": 1.0,
+        "category": 0.75
+      },
+      "hotspot_penalty": 0.0
+    },
+    "product_id+region": {
+      "fields": [
+        "product_id",
+        "region"
+      ],
+      "total_score": 82.97,
+      "unique_combinations": 2462,
+      "combined_cardinality_ratio": 24.62,
+      "balance_cv": 0.0258,
+      "write_balance_cv": 0.0286,
+      "write_balance_score": 97.14,
+      "shard_distribution": {
+        "shard_0": 2418,
+        "shard_1": 2567,
+        "shard_2": 2456,
+        "shard_3": 2559
+      },
+      "shard_percentages": {
+        "shard_0": 24.18,
+        "shard_1": 25.67,
+        "shard_2": 24.56,
+        "shard_3": 25.59
+      },
+      "field_coverage": {
+        "product_id": 1.0,
+        "region": 0.5
+      },
+      "hotspot_penalty": 0.0
+    },
+    "product_id+category": {
+      "fields": [
+        "product_id",
+        "category"
+      ],
+      "total_score": 83.05,
+      "unique_combinations": 2462,
+      "combined_cardinality_ratio": 24.62,
+      "balance_cv": 0.0236,
+      "write_balance_cv": 0.0308,
+      "write_balance_score": 96.92,
+      "shard_distribution": {
+        "shard_0": 2500,
+        "shard_1": 2467,
+        "shard_2": 2438,
+        "shard_3": 2595
+      },
+      "shard_percentages": {
+        "shard_0": 25.0,
+        "shard_1": 24.67,
+        "shard_2": 24.38,
+        "shard_3": 25.95
+      },
+      "field_coverage": {
+        "product_id": 1.0,
+        "category": 0.75
+      },
+      "hotspot_penalty": 0.0
+    },
+    "region+category": {
+      "fields": [
+        "region",
+        "category"
+      ],
+      "total_score": 62.48,
+      "unique_combinations": 25,
+      "combined_cardinality_ratio": 0.25,
+      "balance_cv": 0.1997,
+      "write_balance_cv": 0.2118,
+      "write_balance_score": 78.82,
+      "shard_distribution": {
+        "shard_0": 2074,
+        "shard_1": 3202,
+        "shard_2": 2739,
+        "shard_3": 1985
+      },
+      "shard_percentages": {
+        "shard_0": 20.74,
+        "shard_1": 32.02,
+        "shard_2": 27.39,
+        "shard_3": 19.85
+      },
+      "field_coverage": {
+        "region": 0.5,
+        "category": 0.75
+      },
+      "hotspot_penalty": 0.0
+    }
+  },
+  "shard_count_calculation": {
+    "current_records": 10000,
+    "projected_records": 18212,
+    "daily_growth_rate": 5.0,
+    "growth_period_months": 12,
+    "shard_capacity_limit": 500000,
+    "target_fill_ratio": 0.7,
+    "min_shards_by_capacity": 1,
+    "recommended_shard_count": 2,
+    "recommended_per_shard_records": 9106,
+    "projected_fill_ratio": 0.0182,
+    "balance_evaluation": {
+      "best_field": "timestamp",
+      "best_balance_score": 100.0,
+      "avg_balance_score": 72.59,
+      "per_shard_records": 9106.0,
+      "fill_ratio": 0.0182,
+      "field_scores": {
+        "user_id": 84.15,
+        "product_id": 94.75,
+        "timestamp": 100.0,
+        "category": 84.05,
+        "region": 0
+      }
+    },
+    "all_evaluations": {
+      "2": {
+        "best_field": "timestamp",
+        "best_balance_score": 100.0,
+        "avg_balance_score": 72.59,
+        "per_shard_records": 9106.0,
+        "fill_ratio": 0.0182,
+        "field_scores": {
+          "user_id": 84.15,
+          "product_id": 94.75,
+          "timestamp": 100.0,
+          "category": 84.05,
+          "region": 0
+        }
+      },
+      "3": {
+        "best_field": "timestamp",
+        "best_balance_score": 99.92,
+        "avg_balance_score": 44.94,
+        "per_shard_records": 6071.0,
+        "fill_ratio": 0.0121,
+        "field_scores": {
+          "user_id": 0,
+          "product_id": 98.99,
+          "timestamp": 99.92,
+          "category": 0,
+          "region": 25.8
+        }
+      },
+      "4": {
+        "best_field": "timestamp",
+        "best_balance_score": 100.0,
+        "avg_balance_score": 48.27,
+        "per_shard_records": 4553.0,
+        "fill_ratio": 0.0091,
+        "field_scores": {
+          "user_id": 15.8,
+          "product_id": 93.52,
+          "timestamp": 100.0,
+          "category": 32.02,
+          "region": 0
+        }
+      }
+    }
+  },
+  "query_routing_efficiency": {
+    "shard_key": "product_id",
+    "num_shards": 2,
+    "total_queries": 10000,
+    "point_queries": 6968,
+    "range_queries": 3032,
+    "avg_cross_shard_ratio": 52.31,
+    "point_cross_shard_ratio": 36.98,
+    "range_cross_shard_ratio": 87.55,
+    "routing_efficiency": 47.69,
+    "targeted_query_ratio": 25.7,
+    "estimated_latency_factor": 1.26
+  },
+  "all_routing_efficiency": {
+    "user_id": {
+      "shard_key": "user_id",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 48.07,
+      "point_cross_shard_ratio": 33.07,
+      "range_cross_shard_ratio": 82.54,
+      "routing_efficiency": 51.93,
+      "targeted_query_ratio": 34.19,
+      "estimated_latency_factor": 1.24
+    },
+    "product_id": {
+      "shard_key": "product_id",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 52.31,
+      "point_cross_shard_ratio": 36.98,
+      "range_cross_shard_ratio": 87.55,
+      "routing_efficiency": 47.69,
+      "targeted_query_ratio": 25.7,
+      "estimated_latency_factor": 1.26
+    },
+    "timestamp": {
+      "shard_key": "timestamp",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 55.25,
+      "point_cross_shard_ratio": 40.04,
+      "range_cross_shard_ratio": 90.2,
+      "routing_efficiency": 44.75,
+      "targeted_query_ratio": 19.82,
+      "estimated_latency_factor": 1.28
+    },
+    "category": {
+      "shard_key": "category",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 59.91,
+      "point_cross_shard_ratio": 44.83,
+      "range_cross_shard_ratio": 94.57,
+      "routing_efficiency": 40.09,
+      "targeted_query_ratio": 10.5,
+      "estimated_latency_factor": 1.3
+    },
+    "region": {
+      "shard_key": "region",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 60.27,
+      "point_cross_shard_ratio": 45.09,
+      "range_cross_shard_ratio": 95.14,
+      "routing_efficiency": 39.73,
+      "targeted_query_ratio": 9.79,
+      "estimated_latency_factor": 1.3
+    },
+    "user_id+product_id": {
+      "shard_key": "user_id+product_id",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 35.22,
+      "point_cross_shard_ratio": 20.04,
+      "range_cross_shard_ratio": 70.09,
+      "routing_efficiency": 64.78,
+      "targeted_query_ratio": "0       0.01\n1       0.00\n2       0.01\n3       0.01\n4       0.00\n        ... \n9995    0.01\n9996    0.00\n9997    0.00\n9998    0.00\n9999    0.00\nName: query_field, Length: 10000, dtype: float64",
+      "estimated_latency_factor": 1.18
+    },
+    "user_id+region": {
+      "shard_key": "user_id+region",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 43.17,
+      "point_cross_shard_ratio": 28.16,
+      "range_cross_shard_ratio": 77.67,
+      "routing_efficiency": 56.83,
+      "targeted_query_ratio": "0       0.01\n1       0.00\n2       0.01\n3       0.00\n4       0.00\n        ... \n9995    0.00\n9996    0.00\n9997    0.01\n9998    0.00\n9999    0.00\nName: query_field, Length: 10000, dtype: float64",
+      "estimated_latency_factor": 1.22
+    },
+    "user_id+category": {
+      "shard_key": "user_id+category",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 42.81,
+      "point_cross_shard_ratio": 27.89,
+      "range_cross_shard_ratio": 77.11,
+      "routing_efficiency": 57.18,
+      "targeted_query_ratio": "0       0.01\n1       0.00\n2       0.01\n3       0.00\n4       0.01\n        ... \n9995    0.00\n9996    0.00\n9997    0.00\n9998    0.00\n9999    0.00\nName: query_field, Length: 10000, dtype: float64",
+      "estimated_latency_factor": 1.21
+    },
+    "product_id+region": {
+      "shard_key": "product_id+region",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 47.41,
+      "point_cross_shard_ratio": 32.07,
+      "range_cross_shard_ratio": 82.68,
+      "routing_efficiency": 52.58,
+      "targeted_query_ratio": "0       0.00\n1       0.00\n2       0.00\n3       0.01\n4       0.00\n        ... \n9995    0.01\n9996    0.00\n9997    0.01\n9998    0.00\n9999    0.00\nName: query_field, Length: 10000, dtype: float64",
+      "estimated_latency_factor": 1.24
+    },
+    "product_id+category": {
+      "shard_key": "product_id+category",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 47.06,
+      "point_cross_shard_ratio": 31.8,
+      "range_cross_shard_ratio": 82.12,
+      "routing_efficiency": 52.94,
+      "targeted_query_ratio": "0       0.00\n1       0.00\n2       0.00\n3       0.01\n4       0.01\n        ... \n9995    0.01\n9996    0.00\n9997    0.00\n9998    0.00\n9999    0.00\nName: query_field, Length: 10000, dtype: float64",
+      "estimated_latency_factor": 1.24
+    },
+    "region+category": {
+      "shard_key": "region+category",
+      "num_shards": 2,
+      "total_queries": 10000,
+      "point_queries": 6968,
+      "range_queries": 3032,
+      "avg_cross_shard_ratio": 55.02,
+      "point_cross_shard_ratio": 39.92,
+      "range_cross_shard_ratio": 89.71,
+      "routing_efficiency": 44.98,
+      "targeted_query_ratio": "0       0.00\n1       0.00\n2       0.00\n3       0.00\n4       0.01\n        ... \n9995    0.00\n9996    0.00\n9997    0.01\n9998    0.00\n9999    0.00\nName: query_field, Length: 10000, dtype: float64",
+      "estimated_latency_factor": 1.28
+    }
+  }
+}
