@@ -1,0 +1,4 @@
+Flask>=2.3
+Pillow>=10.0
+cachetools>=5.3
+redis>=5.0

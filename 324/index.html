@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排序算法可视化 - 冒泡 vs 鸡尾酒排序</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .option-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-sort {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-sort:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-random {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-random:hover {
+            background: #45a049;
+        }
+
+        .stats-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .comparison-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .algo-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .algo-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .algo-stats {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .winner {
+            border: 3px solid #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .winner .algo-name {
+            color: #2e7d32;
+        }
+
+        .vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .diff-positive {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .visualization {
+            margin-top: 30px;
+        }
+
+        .round-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .bars-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 300px;
+            gap: 5px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+
+        .bar {
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 5px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+            min-width: 30px;
+        }
+
+        .bar.sorted {
+            background: linear-gradient(to top, #4CAF50, #45a049);
+        }
+
+        .bar.right-direction {
+            background: linear-gradient(to top, #2196F3, #1976D2);
+        }
+
+        .bar.left-direction {
+            background: linear-gradient(to top, #FF9800, #F57C00);
+        }
+
+        .direction-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .direction-badge.right {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .direction-badge.left {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .steps-list {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .step-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .step-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            color: #f44336;
+            text-align: center;
+            padding: 15px;
+            background: #ffebee;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 排序算法可视化对比</h1>
+        
+        <div class="input-section">
+            <label for="arrayInput">输入数组（用逗号分隔）：</label>
+            <input type="text" id="arrayInput" value="64, 34, 25, 12, 22, 11, 90" placeholder="例如: 64, 34, 25, 12, 22, 11, 90">
+            
+            <div class="option-row">
+                <label style="margin: 0; font-size: 14px;">算法：</label>
+                <select id="algorithmSelect">
+                    <option value="bubble">冒泡排序</option>
+                    <option value="cocktail">鸡尾酒排序</option>
+                    <option value="compare">📊 对比两种算法</option>
+                </select>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn-random" onclick="generateRandom()">🎲 随机生成</button>
+                <button class="btn-sort" onclick="startSort()">▶️ 开始排序</button>
+                <button class="btn-reset" onclick="resetVisualization()">🔄 重置</button>
+            </div>
+        </div>
+
+        <div id="comparisonPanel" class="comparison-panel hidden">
+            <div class="comparison-title">🏆 算法对比结果</div>
+            <div class="comparison-grid">
+                <div id="bubbleCard" class="algo-card">
+                    <div class="algo-name">冒泡排序</div>
+                    <div class="algo-stats">
+                        <div>轮数: <span id="bubbleRounds">-</span></div>
+                        <div>交换: <span id="bubbleSwaps">-</span></div>
+                    </div>
+                </div>
+                <div class="vs">VS</div>
+                <div id="cocktailCard" class="algo-card">
+                    <div class="algo-name">鸡尾酒排序</div>
+                    <div class="algo-stats">
+                        <div>轮数: <span id="cocktailRounds">-</span></div>
+                        <div>交换: <span id="cocktailSwaps">-</span></div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
+                <span id="roundDiff">轮数差异: </span>
+                <span id="swapDiff">交换差异: </span>
+            </div>
+        </div>
+
+        <div id="statsPanel" class="stats-panel hidden">
+            <div class="stats-row">
+                <div class="stat-item">
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRounds">0</div>
+                    <div class="stat-label">总轮数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSwaps">0</div>
+                    <div class="stat-label">交换次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentAlgorithm">-</div>
+                    <div class="stat-label">当前算法</div>
+                </div>
+                <div class="stat-item">
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization">
+            <div class="round-info" id="roundInfo">等待开始...</div>
+            <div class="bars-container" id="barsContainer"></div>
+        </div>
+
+        <div class="steps-list" id="stepsList"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/sort';
+        let sortSteps = [];
+        let totalRounds = 0;
+        let currentStep = 0;
+        let animationInterval = null;
+        let isAnimating = false;
+        let currentAlgorithm = 'bubble';
+
+        document.getElementById('algorithmSelect').addEventListener('change', function(e) {
+            const isCompareMode = e.target.value === 'compare';
+        });
+
+        function generateRandom() {
+            const length = Math.floor(Math.random() * 8) + 5;
+            const arr = Array.from({ length }, () => Math.floor(Math.random() * 100) + 1);
+            document.getElementById('arrayInput').value = arr.join(', ');
+            resetVisualization();
+            drawBars(arr);
+        }
+
+        function parseInput() {
+            const input = document.getElementById('arrayInput').value;
+            const arr = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+            return arr;
+        }
+
+        function drawBars(arr, direction = null) {
+            const container = document.getElementById('barsContainer');
+            container.innerHTML = '';
+            
+            const maxVal = Math.max(...arr, 1);
+            const barWidth = Math.max(30, Math.min(60, 600 / arr.length));
+            
+            arr.forEach((val, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                
+                if (direction === '右') {
+                    bar.classList.add('right-direction');
+                } else if (direction === '左') {
+                    bar.classList.add('left-direction');
+                }
+                
+                const height = (val / maxVal) * 250;
+                bar.style.height = height + 'px';
+                bar.style.width = barWidth + 'px';
+                bar.textContent = val;
+                
+                container.appendChild(bar);
+            });
+        }
+
+        function buildRequestBody(arr) {
+            const algorithm = document.getElementById('algorithmSelect').value;
+            return {
+                array: arr,
+                algorithm: algorithm
+            };
+        }
+
+        function showComparison(show) {
+            const panel = document.getElementById('comparisonPanel');
+            if (show) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        function showStats(show) {
+            const panel = document.getElementById('statsPanel');
+            if (show) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        function updateComparisonDisplay(data) {
+            const comp = data.comparison;
+            
+            document.getElementById('bubbleRounds').textContent = comp.bubble_sort.total_rounds;
+            document.getElementById('bubbleSwaps').textContent = comp.bubble_sort.swap_count;
+            document.getElementById('cocktailRounds').textContent = comp.cocktail_sort.total_rounds;
+            document.getElementById('cocktailSwaps').textContent = comp.cocktail_sort.swap_count;
+            
+            const bubbleCard = document.getElementById('bubbleCard');
+            const cocktailCard = document.getElementById('cocktailCard');
+            
+            bubbleCard.classList.remove('winner');
+            cocktailCard.classList.remove('winner');
+            
+            if (comp.winner === 'cocktail') {
+                cocktailCard.classList.add('winner');
+            } else if (comp.winner === 'bubble') {
+                bubbleCard.classList.add('winner');
+            }
+            
+            const roundDiff = comp.round_difference;
+            const swapDiff = comp.swap_difference;
+            
+            document.getElementById('roundDiff').innerHTML = 
+                `轮数差异: <span class="diff-positive">${roundDiff.absolute} (${roundDiff.percent}%)</span>`;
+            document.getElementById('swapDiff').innerHTML = 
+                `交换差异: <span class="diff-positive">${swapDiff.absolute} (${swapDiff.percent}%)</span>`;
+            
+            showComparison(true);
+            showStats(false);
+        }
+
+        async function startSort() {
+            if (isAnimating) {
+                stopAnimation();
+                return;
+            }
+
+            const arr = parseInput();
+            if (arr.length === 0) {
+                showError('请输入有效的数字数组');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const requestBody = buildRequestBody(arr);
+                currentAlgorithm = requestBody.algorithm;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    let errorMsg = data.error || '请求失败';
+                    if (data.suggested_step_interval) {
+                        errorMsg += `（建议步长: ${data.suggested_step_interval}）`;
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                if (data.algorithm === 'compare') {
+                    updateComparisonDisplay(data);
+                    drawBars(data.final_sorted_array);
+                    markAllSorted();
+                    document.getElementById('roundInfo').textContent = '✅ 对比完成！';
+                    return;
+                }
+
+                totalRounds = data.total_rounds;
+
+                showComparison(false);
+                showStats(true);
+                
+                document.getElementById('totalRounds').textContent = totalRounds;
+                document.getElementById('totalSwaps').textContent = data.swap_count;
+                document.getElementById('currentAlgorithm').textContent = data.algorithm_name;
+
+                if (data.final_only || !data.sorting_steps) {
+                    drawBars(data.final_sorted_array);
+                    markAllSorted();
+                    document.getElementById('roundInfo').textContent = '✅ 排序完成！';
+                    return;
+                }
+
+                sortSteps = data.sorting_steps;
+                currentStep = 0;
+                
+                document.getElementById('stepsList').innerHTML = '';
+                sortSteps.forEach((step) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'step-item';
+                    let dirBadge = '';
+                    if (step.direction) {
+                        dirBadge = `<span class="direction-badge ${step.direction === '右' ? 'right' : 'left'}">${step.direction === '右' ? '→右→' : '←左←'}</span>`;
+                    }
+                    stepDiv.innerHTML = `<span class="step-number">[第 ${step.round} 轮]</span>${dirBadge} [${step.array.join(', ')}]`;
+                    document.getElementById('stepsList').appendChild(stepDiv);
+                });
+
+                animateSort();
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function animateSort() {
+            isAnimating = true;
+            const speed = 800;
+            
+            const firstStep = sortSteps[0];
+            drawBars(firstStep.array, firstStep.direction);
+            updateRoundInfo(firstStep.round, firstStep.direction);
+            
+            currentStep = 0;
+            
+            animationInterval = setInterval(() => {
+                currentStep++;
+                
+                if (currentStep >= sortSteps.length) {
+                    stopAnimation();
+                    markAllSorted();
+                    return;
+                }
+                
+                const step = sortSteps[currentStep];
+                drawBars(step.array, step.direction);
+                updateRoundInfo(step.round, step.direction);
+            }, speed);
+        }
+
+        function stopAnimation() {
+            isAnimating = false;
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+        }
+
+        function updateRoundInfo(round, direction = null) {
+            let dirText = '';
+            if (direction) {
+                dirText = direction === '右' ? ' → 向右扫描' : ' ← 向左扫描';
+            }
+            document.getElementById('roundInfo').textContent = 
+                `第 ${round} / ${totalRounds} 轮${dirText}`;
+        }
+
+        function markAllSorted() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => bar.classList.add('sorted'));
+            if (!document.getElementById('comparisonPanel').classList.contains('hidden')) {
+                document.getElementById('roundInfo').textContent = '✅ 排序完成！';
+            }
+        }
+
+        function resetVisualization() {
+            stopAnimation();
+            sortSteps = [];
+            totalRounds = 0;
+            currentStep = 0;
+            document.getElementById('roundInfo').textContent = '等待开始...';
+            document.getElementById('barsContainer').innerHTML = '';
+            document.getElementById('stepsList').innerHTML = '';
+            showComparison(false);
+            showStats(false);
+        }
+
+        function showLoading(show) {
+            const container = document.getElementById('barsContainer');
+            if (show) {
+                container.innerHTML = '<div class="loading">正在请求API...</div>';
+            }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('barsContainer');
+            container.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        window.onload = function() {
+            const arr = parseInput();
+            drawBars(arr);
+        };
+    </script>
+</body>
+</html>
