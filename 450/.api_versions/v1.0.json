@@ -1,0 +1,248 @@
+{
+  "version": "v1.0",
+  "title": "电商系统API",
+  "timestamp": "2026-05-30T05:08:09.399181+00:00",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/products",
+      "title": "获取产品列表",
+      "description": "分页获取所有上架产品",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "required": false,
+          "description": "页码 (默认1)",
+          "default": null,
+          "in": "query",
+          "type_inferred": true,
+          "original_type": "String"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "required": false,
+          "description": "每页数量 (默认20)",
+          "default": null,
+          "in": "query",
+          "type_inferred": true,
+          "original_type": "String"
+        },
+        {
+          "name": "category",
+          "type": "String",
+          "required": true,
+          "description": "产品分类ID",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "sort",
+          "type": "String",
+          "required": false,
+          "description": "排序字段 (price/sales/created)",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        }
+      ],
+      "success_example": "HTTP/1.1 200 OK\n{\n\"total\": 100,\n\"products\": [\n{\n\"id\": \"p_001\",\n\"name\": \"无线蓝牙耳机\",\n\"price\": 19900,\n\"stock\": 56\n}\n]\n}\ndef list_products():\npage = request.args.get(\"page\", 1, type=int)\nlimit = request.args.get(\"limit\", 20, type=int)\ncategory = request.args.get(\"category\", \"\")\nsort = request.args.get(\"sort\", \"created\")\n\nif not isinstance(page, int) or page < 1:\nreturn jsonify({\"error\": \"invalid_page\"}), 400\nif not isinstance(limit, int) or limit > 50:\nreturn jsonify({\"error\": \"invalid_limit\"}), 400\n\nreturn jsonify({\"total\": 100, \"products\": []})",
+      "error_example": "",
+      "tags": [
+        "产品"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders",
+      "title": "创建订单",
+      "description": "提交新订单",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "String",
+          "required": true,
+          "description": "产品ID",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "required": true,
+          "description": "购买数量",
+          "default": null,
+          "in": "query",
+          "type_inferred": true,
+          "original_type": "Number"
+        },
+        {
+          "name": "coupon_code",
+          "type": "String",
+          "required": false,
+          "description": "优惠码",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "address_id",
+          "type": "String",
+          "required": true,
+          "description": "收货地址ID",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        }
+      ],
+      "success_example": "{\n\"order_id\": \"ord_20240101_001\",\n\"total_amount\": 39800,\n\"status\": \"pending\"\n}",
+      "error_example": "{\n\"error\": \"product_not_found\",\n\"message\": \"产品不存在\"\n}\ndef create_order():\ndata = request.get_json()\n\nproduct_id = data.get(\"product_id\")\nquantity = data.get(\"quantity\")\naddress_id = data.get(\"address_id\")\n\nif not isinstance(product_id, str):\nreturn jsonify({\"error\": \"invalid_product_id\"}), 400\nif not isinstance(quantity, int) or quantity < 1:\nreturn jsonify({\"error\": \"invalid_quantity\"}), 400\nif not isinstance(address_id, str):\nreturn jsonify({\"error\": \"invalid_address_id\"}), 400\n\ntotal_amount = 39800\nreturn jsonify({\"order_id\": \"ord_001\", \"total_amount\": total_amount, \"status\": \"pending\"})",
+      "tags": [
+        "订单"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/orders/{order_id}",
+      "title": "取消订单",
+      "description": "取消指定订单（仅限待支付状态）",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "String",
+          "required": true,
+          "description": "订单ID (路径参数)",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "reason",
+          "type": "String",
+          "required": false,
+          "description": "取消原因",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        }
+      ],
+      "success_example": "{\n\"order_id\": \"ord_20240101_001\",\n\"status\": \"cancelled\"\n}\ndef cancel_order(order_id: str, reason: str = \"\"):\nif not isinstance(order_id, str) or len(order_id) < 3:\nreturn jsonify({\"error\": \"invalid_order_id\"}), 400\nif reason and isinstance(reason, str):\npass\n\nreturn jsonify({\"order_id\": order_id, \"status\": \"cancelled\"})",
+      "error_example": "",
+      "tags": [
+        "订单"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users",
+      "title": "获取用户列表",
+      "description": "根据筛选条件分页查询用户信息",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "required": false,
+          "description": "页码，默认1",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "required": false,
+          "description": "每页数量，默认20",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "required": false,
+          "description": "搜索关键词",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "required": true,
+          "description": "角色筛选 (admin/user/guest)",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        }
+      ],
+      "success_example": "    {\n        \"total\": 42,\n        \"users\": [\n            {\"id\": \"u_001\", \"name\": \"Alice\", \"email\": \"alice@example.com\"}\n        ]\n    }",
+      "error_example": "",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users",
+      "title": "创建新用户",
+      "description": "提交用户信息创建新账号",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "用户名，2-50个字符",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true,
+          "description": "邮箱地址",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true,
+          "description": "密码，至少8位",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "required": false,
+          "description": "角色，默认user",
+          "default": null,
+          "in": "query",
+          "type_inferred": false,
+          "original_type": ""
+        }
+      ],
+      "success_example": "    {\n        \"id\": \"u_002\",\n        \"name\": \"Bob\",\n        \"email\": \"bob@example.com\"\n    }",
+      "error_example": "",
+      "tags": []
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block header_title %}订单通知{% endblock %}
+
+{% block greeting %}<p>{{ user_name }}，您好！</p>{% endblock %}
+
+{% block content %}
+<p>您的订单已{{ order_status | default('确认') }}，以下是订单详情：</p>
+
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+    <tr style="background-color: #f8f9fa;">
+        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #555;">商品</th>
+        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6; color: #555;">数量</th>
+        <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; color: #555;">小计</th>
+    </tr>
+    {% for item in order_items %}
+    <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">{{ item.name }}</td>
+        <td style="padding: 12px; text-align: center; border-bottom: 1px solid #e9ecef;">{{ item.quantity }}</td>
+        <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e9ecef;">¥{{ item.price * item.quantity }}</td>
+    </tr>
+    {% endfor %}
+    <tr style="background-color: #f8f9fa; font-weight: bold;">
+        <td style="padding: 12px;" colspan="2">合计</td>
+        <td style="padding: 12px; text-align: right;">¥{{ total_amount }}</td>
+    </tr>
+</table>
+
+<div class="highlight">
+    <p style="margin: 0;">
+        订单号: <strong>{{ order_id }}</strong><br>
+        下单时间: {{ order_time | default('刚刚') }}
+    </p>
+</div>
+
+{% if shipping_address %}
+<p><strong>收货地址：</strong>{{ shipping_address }}</p>
+{% endif %}
+
+{% if tracking_url %}
+<p style="text-align: center; margin: 20px 0;">
+    <a href="{{ tracking_url }}" class="btn">查看物流</a>
+</p>
+{% endif %}
+{% endblock %}

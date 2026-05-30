@@ -1,0 +1,203 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "电商系统 API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v2/categories": {
+      "get": {
+        "summary": "获取分类列表",
+        "description": "返回所有商品分类的树形结构",
+        "tags": ["分类管理"],
+        "parameters": [
+          {
+            "name": "parent_id",
+            "in": "query",
+            "required": false,
+            "description": "父分类ID，为空则返回顶级分类",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "description": "分类层级筛选",
+            "schema": { "type": "integer", "default": "1" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回分类列表",
+            "content": {
+              "application/json": {
+                "example": {
+                  "categories": [
+                    {
+                      "id": "cat_001",
+                      "name": "电子产品",
+                      "children": [
+                        { "id": "cat_002", "name": "手机" },
+                        { "id": "cat_003", "name": "笔记本电脑" }
+                      ]
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "array",
+                      "description": "分类列表"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "创建分类",
+        "description": "创建新的商品分类",
+        "tags": ["分类管理"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "分类名称"
+                  },
+                  "parent_id": {
+                    "type": "string",
+                    "description": "父分类ID"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "分类图标URL"
+                  },
+                  "sort_order": {
+                    "type": "integer",
+                    "description": "排序权重"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "cat_010",
+                  "name": "智能穿戴"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "description": "分类ID" },
+                    "name": { "type": "string", "description": "分类名称" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/categories/{id}": {
+      "put": {
+        "summary": "更新分类",
+        "description": "更新指定分类的信息",
+        "tags": ["分类管理"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "分类ID",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "description": "分类名称" },
+                  "icon": { "type": "string", "description": "图标URL" },
+                  "sort_order": { "type": "integer", "description": "排序权重" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "cat_010",
+                  "name": "智能穿戴设备",
+                  "icon": "https://example.com/icons/wearable.png",
+                  "sort_order": 5
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "分类不存在",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "not_found",
+                  "message": "分类不存在"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除分类",
+        "description": "删除指定分类（需无子分类和关联商品）",
+        "tags": ["分类管理"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "分类ID",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "删除成功，无返回内容"
+          },
+          "400": {
+            "description": "分类下存在子分类或商品，无法删除",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "conflict",
+                  "message": "该分类下存在 3 个子分类，请先删除或迁移"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

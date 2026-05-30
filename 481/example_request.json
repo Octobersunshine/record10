@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "integer",
+        "faker": "random_int"
+      },
+      "name": {
+        "type": "string",
+        "title": "姓名"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "phone": {
+        "type": "string",
+        "title": "手机号"
+      },
+      "address": {
+        "type": "string",
+        "title": "地址"
+      },
+      "birthday": {
+        "type": "string",
+        "format": "date"
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  },
+  "count": 10
+}

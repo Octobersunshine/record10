@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block header_title %}欢迎加入 {{ site_name }}{% endblock %}
+
+{% block greeting %}<p>{{ user_name }}，欢迎您！</p>{% endblock %}
+
+{% block content %}
+<p>感谢您注册 <strong>{{ site_name }}</strong>！我们很高兴您的加入。</p>
+
+<p>请点击下方按钮激活您的账户，开始探索我们的服务：</p>
+
+<p style="text-align: center; margin: 30px 0;">
+    <a href="{{ activate_url }}" class="btn">激活账户</a>
+</p>
+
+<div class="highlight">
+    <p style="margin: 0;">激活链接有效期为 <strong>{{ expire_hours | default(24) }} 小时</strong>，请尽快完成激活。</p>
+</div>
+
+<p>如果按钮无法点击，请复制以下链接到浏览器打开：</p>
+<p style="color: #667eea; word-break: break-all;">{{ activate_url }}</p>
+
+{% if invite_code %}
+<div class="highlight">
+    <p style="margin: 0;">🎁 您的专属邀请码: <strong>{{ invite_code }}</strong></p>
+</div>
+{% endif %}
+{% endblock %}

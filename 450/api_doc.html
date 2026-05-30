@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电商系统API文档</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#333;display:flex;min-height:100vh}
+.sidebar{width:260px;background:#1a1a2e;color:#fff;padding:20px 0;position:fixed;top:0;bottom:0;overflow-y:auto}
+.sidebar h2{padding:0 20px 16px;font-size:18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar .group{margin-top:12px}
+.sidebar .group-title{padding:8px 20px;font-size:13px;color:#8b8fa3;text-transform:uppercase;letter-spacing:.5px}
+.sidebar a{display:block;padding:8px 20px 8px 28px;color:#c3c7d4;text-decoration:none;font-size:13px;transition:all .2s}
+.sidebar a:hover,.sidebar a.active{background:#16213e;color:#fff}
+.sidebar a .method{display:inline-block;width:50px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;text-align:center;margin-right:8px}
+.sidebar a .method.get{background:#61affe;color:#fff}
+.sidebar a .method.post{background:#49cc90;color:#fff}
+.sidebar a .method.put{background:#fca130;color:#fff}
+.sidebar a .method.delete{background:#f93e3e;color:#fff}
+.sidebar a .method.patch{background:#50e3c2;color:#1a1a2e}
+.main{margin-left:260px;flex:1;padding:30px 40px;max-width:900px}
+.ep-card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:24px;overflow:hidden}
+.ep-header{padding:16px 24px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:12px}
+.ep-header .badge{padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700;color:#fff}
+.ep-header .badge.get{background:#61affe}.ep-header .badge.post{background:#49cc90}
+.ep-header .badge.put{background:#fca130}.ep-header .badge.delete{background:#f93e3e}
+.ep-header .badge.patch{background:#50e3c2;color:#1a1a2e}
+.ep-header .path{font-family:monospace;font-size:15px;font-weight:600}
+.ep-header .ep-title{color:#666;font-size:14px;margin-left:auto}
+.ep-body{padding:20px 24px}
+.ep-desc{color:#666;font-size:13px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th{background:#f8f9fb;text-align:left;padding:8px 12px;font-weight:600;border-bottom:2px solid #eee}
+td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+td code{background:#f4f4f4;padding:2px 6px;border-radius:3px;font-size:12px}
+.debug-section{margin-top:16px;padding:16px;background:#f8f9fb;border-radius:6px}
+.debug-section h4{margin-bottom:10px;font-size:14px;color:#333}
+.debug-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.debug-row label{min-width:100px;font-size:12px;font-weight:600;color:#555}
+.debug-row input,.debug-row select,.debug-row textarea{flex:1;padding:6px 10px;border:1px solid #ddd;border-radius:4px;font-size:13px;font-family:inherit}
+.debug-row textarea{min-height:60px;font-family:monospace}
+.btn{padding:8px 20px;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-send{background:#49cc90;color:#fff}.btn-send:hover{background:#3baa7b}
+.btn-send:disabled{background:#ccc;cursor:not-allowed}
+.response-box{margin-top:12px;background:#1a1a2e;border-radius:6px;padding:16px;max-height:400px;overflow:auto}
+.response-box pre{color:#a5d6ff;font-size:13px;font-family:'Fira Code',monospace;white-space:pre-wrap}
+.response-box .status{font-weight:700;margin-bottom:8px}
+.response-box .status.ok{color:#49cc90}.response-box .status.err{color:#f93e3e}
+.inferred{color:#e67e22;font-size:11px}.inferred::before{content:'⚙ '}
+.example-box{background:#2d2d2d;color:#a5d6ff;padding:12px 16px;border-radius:6px;margin:8px 0;font-size:12px;font-family:monospace;white-space:pre-wrap;overflow-x:auto}
+.section-title{font-size:14px;font-weight:700;margin:16px 0 8px;color:#333}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<h2>电商系统API文档</h2>
+<div class="group"><div class="group-title">产品</div>
+<a href="#get--api-v1-products"><span class="method get">GET</span>/api/v1/products</a>
+</div>
+<div class="group"><div class="group-title">订单</div>
+<a href="#post--api-v1-orders"><span class="method post">POST</span>/api/v1/orders</a>
+<a href="#delete--api-v1-orders-order_id"><span class="method delete">DELETE</span>/api/v1/orders/{order_id}</a>
+</div>
+<div class="group"><div class="group-title">默认</div>
+<a href="#get--api-v1-users"><span class="method get">GET</span>/api/v1/users</a>
+<a href="#post--api-v1-users"><span class="method post">POST</span>/api/v1/users</a>
+</div>
+<div class="group"><div class="group-title">分类管理</div>
+<a href="#get--api-v2-categories"><span class="method get">GET</span>/api/v2/categories</a>
+<a href="#post--api-v2-categories"><span class="method post">POST</span>/api/v2/categories</a>
+<a href="#put--api-v2-categories-id"><span class="method put">PUT</span>/api/v2/categories/{id}</a>
+<a href="#delete--api-v2-categories-id"><span class="method delete">DELETE</span>/api/v2/categories/{id}</a>
+</div>
+</div>
+<div class="main" id="main">
+<div class="ep-card" id="get--api-v1-products">
+<div class="ep-header"><span class="badge get">GET</span><span class="path">/api/v1/products</span><span class="ep-title">获取产品列表</span></div>
+<div class="ep-body">
+<div class="ep-desc">分页获取所有上架产品</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>page</code></td><td><span class="inferred">integer</span> (原: String)</td><td>否</td><td>query</td><td>-</td><td>页码 (默认1)</td></tr>
+<tr><td><code>limit</code></td><td><span class="inferred">integer</span> (原: String)</td><td>否</td><td>query</td><td>-</td><td>每页数量 (默认20)</td></tr>
+<tr><td><code>category</code></td><td>String</td><td>是</td><td>query</td><td>-</td><td>产品分类ID</td></tr>
+<tr><td><code>sort</code></td><td>String</td><td>否</td><td>query</td><td>-</td><td>排序字段 (price/sales/created)</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>total</code></td><td><span class="inferred">integer</span> (原: Number)</td><td>总数量</td></tr>
+<tr><td><code>products</code></td><td>Array</td><td>产品列表</td></tr>
+<tr><td><code>products.id</code></td><td>String</td><td>产品ID</td></tr>
+<tr><td><code>products.name</code></td><td>String</td><td>产品名称</td></tr>
+<tr><td><code>products.price</code></td><td><span class="inferred">integer</span> (原: Number)</td><td>价格(分)</td></tr>
+<tr><td><code>products.stock</code></td><td><span class="inferred">integer</span> (原: Number)</td><td>库存</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;total&quot;: 100,
+  &quot;products&quot;: [
+    {
+      &quot;id&quot;: &quot;p_001&quot;,
+      &quot;name&quot;: &quot;无线蓝牙耳机&quot;,
+      &quot;price&quot;: 19900,
+      &quot;stock&quot;: 56
+    }
+  ]
+}</div>
+<div class="debug-section" id="debug-0"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v1/products?page=&amp;limit=&amp;category=&amp;sort=" style="flex:1"></div>
+<button class="btn btn-send" onclick="sendRequest(0)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="post--api-v1-orders">
+<div class="ep-header"><span class="badge post">POST</span><span class="path">/api/v1/orders</span><span class="ep-title">创建订单</span></div>
+<div class="ep-body">
+<div class="ep-desc">提交新订单</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>product_id</code></td><td>String</td><td>是</td><td>query</td><td>-</td><td>产品ID</td></tr>
+<tr><td><code>quantity</code></td><td><span class="inferred">integer</span> (原: Number)</td><td>是</td><td>query</td><td>-</td><td>购买数量</td></tr>
+<tr><td><code>coupon_code</code></td><td>String</td><td>否</td><td>query</td><td>-</td><td>优惠码</td></tr>
+<tr><td><code>address_id</code></td><td>String</td><td>是</td><td>query</td><td>-</td><td>收货地址ID</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>order_id</code></td><td>String</td><td>订单ID</td></tr>
+<tr><td><code>total_amount</code></td><td><span class="inferred">integer</span> (原: Number)</td><td>总金额(分)</td></tr>
+<tr><td><code>status</code></td><td>String</td><td>订单状态</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;order_id&quot;: &quot;ord_20240101_001&quot;,
+  &quot;total_amount&quot;: 39800,
+  &quot;status&quot;: &quot;pending&quot;
+}</div>
+<div class="section-title">错误响应示例</div>
+<div class="example-box">{
+  &quot;error&quot;: &quot;product_not_found&quot;,
+  &quot;message&quot;: &quot;产品不存在&quot;
+}</div>
+<div class="debug-section" id="debug-1"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v1/orders?product_id=&amp;quantity=&amp;coupon_code=&amp;address_id=" style="flex:1"></div>
+<div class="debug-row"><label>请求体</label><textarea class="debug-body">{}</textarea></div>
+<button class="btn btn-send" onclick="sendRequest(1)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="delete--api-v1-orders-order_id">
+<div class="ep-header"><span class="badge delete">DELETE</span><span class="path">/api/v1/orders/{order_id}</span><span class="ep-title">取消订单</span></div>
+<div class="ep-body">
+<div class="ep-desc">取消指定订单（仅限待支付状态）</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>order_id</code></td><td>String</td><td>是</td><td>query</td><td>-</td><td>订单ID (路径参数)</td></tr>
+<tr><td><code>reason</code></td><td>String</td><td>否</td><td>query</td><td>-</td><td>取消原因</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>order_id</code></td><td>String</td><td>订单ID</td></tr>
+<tr><td><code>status</code></td><td>String</td><td>更新后状态</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;order_id&quot;: &quot;ord_20240101_001&quot;,
+  &quot;status&quot;: &quot;cancelled&quot;
+}</div>
+<div class="debug-section" id="debug-2"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v1/orders/{order_id}?order_id=&amp;reason=" style="flex:1"></div>
+<button class="btn btn-send" onclick="sendRequest(2)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="get--api-v1-users">
+<div class="ep-header"><span class="badge get">GET</span><span class="path">/api/v1/users</span><span class="ep-title">获取用户列表</span></div>
+<div class="ep-body">
+<div class="ep-desc">根据筛选条件分页查询用户信息</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>page</code></td><td>integer</td><td>否</td><td>query</td><td>-</td><td>页码，默认1</td></tr>
+<tr><td><code>limit</code></td><td>integer</td><td>否</td><td>query</td><td>-</td><td>每页数量，默认20</td></tr>
+<tr><td><code>keyword</code></td><td>string</td><td>否</td><td>query</td><td>-</td><td>搜索关键词</td></tr>
+<tr><td><code>role</code></td><td>string</td><td>是</td><td>query</td><td>-</td><td>角色筛选 (admin/user/guest)</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>total</code></td><td>integer</td><td>总记录数</td></tr>
+<tr><td><code>users</code></td><td>array</td><td>用户列表</td></tr>
+<tr><td><code>users.id</code></td><td>string</td><td>用户ID</td></tr>
+<tr><td><code>users.name</code></td><td>string</td><td>用户名</td></tr>
+<tr><td><code>users.email</code></td><td>string</td><td>邮箱地址</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;total&quot;: 42,
+  &quot;users&quot;: [
+    {
+      &quot;id&quot;: &quot;u_001&quot;,
+      &quot;name&quot;: &quot;Alice&quot;,
+      &quot;email&quot;: &quot;alice@example.com&quot;
+    }
+  ]
+}</div>
+<div class="debug-section" id="debug-3"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v1/users?page=&amp;limit=&amp;keyword=&amp;role=" style="flex:1"></div>
+<button class="btn btn-send" onclick="sendRequest(3)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="post--api-v1-users">
+<div class="ep-header"><span class="badge post">POST</span><span class="path">/api/v1/users</span><span class="ep-title">创建新用户</span></div>
+<div class="ep-body">
+<div class="ep-desc">提交用户信息创建新账号</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>name</code></td><td>string</td><td>是</td><td>query</td><td>-</td><td>用户名，2-50个字符</td></tr>
+<tr><td><code>email</code></td><td>string</td><td>是</td><td>query</td><td>-</td><td>邮箱地址</td></tr>
+<tr><td><code>password</code></td><td>string</td><td>是</td><td>query</td><td>-</td><td>密码，至少8位</td></tr>
+<tr><td><code>role</code></td><td>string</td><td>否</td><td>query</td><td>-</td><td>角色，默认user</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>id</code></td><td>string</td><td>新建用户ID</td></tr>
+<tr><td><code>name</code></td><td>string</td><td>用户名</td></tr>
+<tr><td><code>email</code></td><td>string</td><td>邮箱</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;id&quot;: &quot;u_002&quot;,
+  &quot;name&quot;: &quot;Bob&quot;,
+  &quot;email&quot;: &quot;bob@example.com&quot;
+}</div>
+<div class="debug-section" id="debug-4"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v1/users?name=&amp;email=&amp;password=&amp;role=" style="flex:1"></div>
+<div class="debug-row"><label>请求体</label><textarea class="debug-body">{}</textarea></div>
+<button class="btn btn-send" onclick="sendRequest(4)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="get--api-v2-categories">
+<div class="ep-header"><span class="badge get">GET</span><span class="path">/api/v2/categories</span><span class="ep-title">获取分类列表</span></div>
+<div class="ep-body">
+<div class="ep-desc">返回所有商品分类的树形结构</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>parent_id</code></td><td>string</td><td>否</td><td>query</td><td>-</td><td>父分类ID，为空则返回顶级分类</td></tr>
+<tr><td><code>level</code></td><td>integer</td><td>否</td><td>query</td><td>1</td><td>分类层级筛选</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>200</code></td><td></td><td>成功返回分类列表</td></tr>
+<tr><td><code>200.categories</code></td><td>array</td><td>分类列表</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;categories&quot;: [
+    {
+      &quot;id&quot;: &quot;cat_001&quot;,
+      &quot;name&quot;: &quot;电子产品&quot;,
+      &quot;children&quot;: [
+        {
+          &quot;id&quot;: &quot;cat_002&quot;,
+          &quot;name&quot;: &quot;手机&quot;
+        },
+        {
+          &quot;id&quot;: &quot;cat_003&quot;,
+          &quot;name&quot;: &quot;笔记本电脑&quot;
+        }
+      ]
+    }
+  ]
+}</div>
+<div class="debug-section" id="debug-5"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v2/categories?parent_id=&amp;level=1" style="flex:1"></div>
+<button class="btn btn-send" onclick="sendRequest(5)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="post--api-v2-categories">
+<div class="ep-header"><span class="badge post">POST</span><span class="path">/api/v2/categories</span><span class="ep-title">创建分类</span></div>
+<div class="ep-body">
+<div class="ep-desc">创建新的商品分类</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>name</code></td><td>string</td><td>是</td><td>body</td><td>-</td><td>分类名称</td></tr>
+<tr><td><code>parent_id</code></td><td>string</td><td>否</td><td>body</td><td>-</td><td>父分类ID</td></tr>
+<tr><td><code>icon</code></td><td>string</td><td>否</td><td>body</td><td>-</td><td>分类图标URL</td></tr>
+<tr><td><code>sort_order</code></td><td>integer</td><td>否</td><td>body</td><td>-</td><td>排序权重</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>201</code></td><td></td><td>创建成功</td></tr>
+<tr><td><code>201.id</code></td><td>string</td><td>分类ID</td></tr>
+<tr><td><code>201.name</code></td><td>string</td><td>分类名称</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;id&quot;: &quot;cat_010&quot;,
+  &quot;name&quot;: &quot;智能穿戴&quot;
+}</div>
+<div class="debug-section" id="debug-6"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v2/categories" style="flex:1"></div>
+<div class="debug-row"><label>请求体</label><textarea class="debug-body">{
+  &quot;name&quot;: &quot;&quot;,
+  &quot;parent_id&quot;: &quot;&quot;,
+  &quot;icon&quot;: &quot;&quot;,
+  &quot;sort_order&quot;: 0
+}</textarea></div>
+<button class="btn btn-send" onclick="sendRequest(6)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="put--api-v2-categories-id">
+<div class="ep-header"><span class="badge put">PUT</span><span class="path">/api/v2/categories/{id}</span><span class="ep-title">更新分类</span></div>
+<div class="ep-body">
+<div class="ep-desc">更新指定分类的信息</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>id</code></td><td>string</td><td>是</td><td>path</td><td>-</td><td>分类ID</td></tr>
+<tr><td><code>name</code></td><td>string</td><td>否</td><td>body</td><td>-</td><td>分类名称</td></tr>
+<tr><td><code>icon</code></td><td>string</td><td>否</td><td>body</td><td>-</td><td>图标URL</td></tr>
+<tr><td><code>sort_order</code></td><td>integer</td><td>否</td><td>body</td><td>-</td><td>排序权重</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>200</code></td><td></td><td>更新成功</td></tr>
+<tr><td><code>404</code></td><td></td><td>分类不存在</td></tr>
+</table>
+<div class="section-title">成功响应示例</div>
+<div class="example-box">{
+  &quot;id&quot;: &quot;cat_010&quot;,
+  &quot;name&quot;: &quot;智能穿戴设备&quot;,
+  &quot;icon&quot;: &quot;https://example.com/icons/wearable.png&quot;,
+  &quot;sort_order&quot;: 5
+}</div>
+<div class="section-title">错误响应示例</div>
+<div class="example-box">{
+  &quot;error&quot;: &quot;not_found&quot;,
+  &quot;message&quot;: &quot;分类不存在&quot;
+}</div>
+<div class="debug-section" id="debug-7"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v2/categories/{id}" style="flex:1"></div>
+<div class="debug-row"><label>请求体</label><textarea class="debug-body">{
+  &quot;name&quot;: &quot;&quot;,
+  &quot;icon&quot;: &quot;&quot;,
+  &quot;sort_order&quot;: 0
+}</textarea></div>
+<button class="btn btn-send" onclick="sendRequest(7)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+<div class="ep-card" id="delete--api-v2-categories-id">
+<div class="ep-header"><span class="badge delete">DELETE</span><span class="path">/api/v2/categories/{id}</span><span class="ep-title">删除分类</span></div>
+<div class="ep-body">
+<div class="ep-desc">删除指定分类（需无子分类和关联商品）</div>
+<div class="section-title">参数</div>
+<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>位置</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>id</code></td><td>string</td><td>是</td><td>path</td><td>-</td><td>分类ID</td></tr>
+</table>
+<div class="section-title">返回字段</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>204</code></td><td></td><td>删除成功，无返回内容</td></tr>
+<tr><td><code>400</code></td><td></td><td>分类下存在子分类或商品，无法删除</td></tr>
+</table>
+<div class="section-title">错误响应示例</div>
+<div class="example-box">{
+  &quot;error&quot;: &quot;conflict&quot;,
+  &quot;message&quot;: &quot;该分类下存在 3 个子分类，请先删除或迁移&quot;
+}</div>
+<div class="debug-section" id="debug-8"><h4>🚀 在线调试</h4>
+<div class="debug-row"><label>请求 URL</label><input class="debug-url" value="http://localhost:8000/api/v2/categories/{id}" style="flex:1"></div>
+<button class="btn btn-send" onclick="sendRequest(8)">发送请求</button>
+<div class="response-box" style="display:none"></div>
+</div>
+</div>
+</div>
+
+</div>
+<script>
+const ENDPOINTS = [{"method": "GET", "path": "/api/v1/products", "title": "获取产品列表", "description": "分页获取所有上架产品", "params": [{"name": "page", "type": "integer", "required": false, "description": "页码 (默认1)", "default": null, "in": "query", "type_inferred": true, "original_type": "String"}, {"name": "limit", "type": "integer", "required": false, "description": "每页数量 (默认20)", "default": null, "in": "query", "type_inferred": true, "original_type": "String"}, {"name": "category", "type": "String", "required": true, "description": "产品分类ID", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "sort", "type": "String", "required": false, "description": "排序字段 (price/sales/created)", "default": null, "in": "query", "type_inferred": false, "original_type": ""}], "success_example": "HTTP/1.1 200 OK\n{\n\"total\": 100,\n\"products\": [\n{\n\"id\": \"p_001\",\n\"name\": \"无线蓝牙耳机\",\n\"price\": 19900,\n\"stock\": 56\n}\n]\n}\ndef list_products():\npage = request.args.get(\"page\", 1, type=int)\nlimit = request.args.get(\"limit\", 20, type=int)\ncategory = request.args.get(\"category\", \"\")\nsort = request.args.get(\"sort\", \"created\")\n\nif not isinstance(page, int) or page < 1:\nreturn jsonify({\"error\": \"invalid_page\"}), 400\nif not isinstance(limit, int) or limit > 50:\nreturn jsonify({\"error\": \"invalid_limit\"}), 400\n\nreturn jsonify({\"total\": 100, \"products\": []})", "error_example": "", "tags": ["产品"]}, {"method": "POST", "path": "/api/v1/orders", "title": "创建订单", "description": "提交新订单", "params": [{"name": "product_id", "type": "String", "required": true, "description": "产品ID", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "quantity", "type": "integer", "required": true, "description": "购买数量", "default": null, "in": "query", "type_inferred": true, "original_type": "Number"}, {"name": "coupon_code", "type": "String", "required": false, "description": "优惠码", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "address_id", "type": "String", "required": true, "description": "收货地址ID", "default": null, "in": "query", "type_inferred": false, "original_type": ""}], "success_example": "{\n\"order_id\": \"ord_20240101_001\",\n\"total_amount\": 39800,\n\"status\": \"pending\"\n}", "error_example": "{\n\"error\": \"product_not_found\",\n\"message\": \"产品不存在\"\n}\ndef create_order():\ndata = request.get_json()\n\nproduct_id = data.get(\"product_id\")\nquantity = data.get(\"quantity\")\naddress_id = data.get(\"address_id\")\n\nif not isinstance(product_id, str):\nreturn jsonify({\"error\": \"invalid_product_id\"}), 400\nif not isinstance(quantity, int) or quantity < 1:\nreturn jsonify({\"error\": \"invalid_quantity\"}), 400\nif not isinstance(address_id, str):\nreturn jsonify({\"error\": \"invalid_address_id\"}), 400\n\ntotal_amount = 39800\nreturn jsonify({\"order_id\": \"ord_001\", \"total_amount\": total_amount, \"status\": \"pending\"})", "tags": ["订单"]}, {"method": "DELETE", "path": "/api/v1/orders/{order_id}", "title": "取消订单", "description": "取消指定订单（仅限待支付状态）", "params": [{"name": "order_id", "type": "String", "required": true, "description": "订单ID (路径参数)", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "reason", "type": "String", "required": false, "description": "取消原因", "default": null, "in": "query", "type_inferred": false, "original_type": ""}], "success_example": "{\n\"order_id\": \"ord_20240101_001\",\n\"status\": \"cancelled\"\n}\ndef cancel_order(order_id: str, reason: str = \"\"):\nif not isinstance(order_id, str) or len(order_id) < 3:\nreturn jsonify({\"error\": \"invalid_order_id\"}), 400\nif reason and isinstance(reason, str):\npass\n\nreturn jsonify({\"order_id\": order_id, \"status\": \"cancelled\"})", "error_example": "", "tags": ["订单"]}, {"method": "GET", "path": "/api/v1/users", "title": "获取用户列表", "description": "根据筛选条件分页查询用户信息", "params": [{"name": "page", "type": "integer", "required": false, "description": "页码，默认1", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "limit", "type": "integer", "required": false, "description": "每页数量，默认20", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "keyword", "type": "string", "required": false, "description": "搜索关键词", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "role", "type": "string", "required": true, "description": "角色筛选 (admin/user/guest)", "default": null, "in": "query", "type_inferred": false, "original_type": ""}], "success_example": "    {\n        \"total\": 42,\n        \"users\": [\n            {\"id\": \"u_001\", \"name\": \"Alice\", \"email\": \"alice@example.com\"}\n        ]\n    }", "error_example": "", "tags": []}, {"method": "POST", "path": "/api/v1/users", "title": "创建新用户", "description": "提交用户信息创建新账号", "params": [{"name": "name", "type": "string", "required": true, "description": "用户名，2-50个字符", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "email", "type": "string", "required": true, "description": "邮箱地址", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "password", "type": "string", "required": true, "description": "密码，至少8位", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "role", "type": "string", "required": false, "description": "角色，默认user", "default": null, "in": "query", "type_inferred": false, "original_type": ""}], "success_example": "    {\n        \"id\": \"u_002\",\n        \"name\": \"Bob\",\n        \"email\": \"bob@example.com\"\n    }", "error_example": "", "tags": []}, {"method": "GET", "path": "/api/v2/categories", "title": "获取分类列表", "description": "返回所有商品分类的树形结构", "params": [{"name": "parent_id", "type": "string", "required": false, "description": "父分类ID，为空则返回顶级分类", "default": null, "in": "query", "type_inferred": false, "original_type": ""}, {"name": "level", "type": "integer", "required": false, "description": "分类层级筛选", "default": "1", "in": "query", "type_inferred": false, "original_type": ""}], "success_example": "HTTP/1.1 200\n{\n  \"categories\": [\n    {\n      \"id\": \"cat_001\",\n      \"name\": \"电子产品\",\n      \"children\": [\n        {\n          \"id\": \"cat_002\",\n          \"name\": \"手机\"\n        },\n        {\n          \"id\": \"cat_003\",\n          \"name\": \"笔记本电脑\"\n        }\n      ]\n    }\n  ]\n}", "error_example": "", "tags": ["分类管理"]}, {"method": "POST", "path": "/api/v2/categories", "title": "创建分类", "description": "创建新的商品分类", "params": [{"name": "name", "type": "string", "required": true, "description": "分类名称", "default": null, "in": "body", "type_inferred": false, "original_type": ""}, {"name": "parent_id", "type": "string", "required": false, "description": "父分类ID", "default": null, "in": "body", "type_inferred": false, "original_type": ""}, {"name": "icon", "type": "string", "required": false, "description": "分类图标URL", "default": null, "in": "body", "type_inferred": false, "original_type": ""}, {"name": "sort_order", "type": "integer", "required": false, "description": "排序权重", "default": null, "in": "body", "type_inferred": false, "original_type": ""}], "success_example": "HTTP/1.1 201\n{\n  \"id\": \"cat_010\",\n  \"name\": \"智能穿戴\"\n}", "error_example": "", "tags": ["分类管理"]}, {"method": "PUT", "path": "/api/v2/categories/{id}", "title": "更新分类", "description": "更新指定分类的信息", "params": [{"name": "id", "type": "string", "required": true, "description": "分类ID", "default": null, "in": "path", "type_inferred": false, "original_type": ""}, {"name": "name", "type": "string", "required": false, "description": "分类名称", "default": null, "in": "body", "type_inferred": false, "original_type": ""}, {"name": "icon", "type": "string", "required": false, "description": "图标URL", "default": null, "in": "body", "type_inferred": false, "original_type": ""}, {"name": "sort_order", "type": "integer", "required": false, "description": "排序权重", "default": null, "in": "body", "type_inferred": false, "original_type": ""}], "success_example": "HTTP/1.1 200\n{\n  \"id\": \"cat_010\",\n  \"name\": \"智能穿戴设备\",\n  \"icon\": \"https://example.com/icons/wearable.png\",\n  \"sort_order\": 5\n}", "error_example": "HTTP/1.1 404\n{\n  \"error\": \"not_found\",\n  \"message\": \"分类不存在\"\n}", "tags": ["分类管理"]}, {"method": "DELETE", "path": "/api/v2/categories/{id}", "title": "删除分类", "description": "删除指定分类（需无子分类和关联商品）", "params": [{"name": "id", "type": "string", "required": true, "description": "分类ID", "default": null, "in": "path", "type_inferred": false, "original_type": ""}], "success_example": "", "error_example": "HTTP/1.1 400\n{\n  \"error\": \"conflict\",\n  \"message\": \"该分类下存在 3 个子分类，请先删除或迁移\"\n}", "tags": ["分类管理"]}];
+const BASE_URL = 'https://api.example.com';
+function sendRequest(epIdx){
+  const ep = ENDPOINTS[epIdx];
+  const card = document.getElementById('debug-' + epIdx);
+  const urlInput = card.querySelector('.debug-url');
+  const bodyInput = card.querySelector('.debug-body');
+  const respBox = card.querySelector('.response-box');
+  const btn = card.querySelector('.btn-send');
+  btn.disabled = true;
+  btn.textContent = '发送中...';
+  let url = urlInput.value;
+  const options = {method: ep.method, headers: {}};
+  if (['POST','PUT','PATCH'].includes(ep.method) && bodyInput && bodyInput.value.trim()){
+    try{ options.body = JSON.stringify(JSON.parse(bodyInput.value)); options.headers['Content-Type']='application/json'; }
+    catch(e){ options.body = bodyInput.value; }
+  }
+  const startTime = performance.now();
+  fetch(url, options).then(r=>{const elapsed=(performance.now()-startTime).toFixed(0);const ct=r.headers.get('content-type')||'';return r.text().then(t=>({status:r.status,statusText:r.statusText,ok:r.ok,body:t,isJson:ct.includes('json'),elapsed}))})
+  .then(d=>{let body=d.isJson?JSON.stringify(JSON.parse(d.body),null,2):d.body;const cls=d.ok?'ok':'err';respBox.style.display='block';respBox.innerHTML='<div class="status '+cls+'">HTTP '+d.status+' '+d.statusText+' ('+d.elapsed+'ms)</div><pre>'+_escHtml(body)+'</pre>';})
+  .catch(e=>{respBox.style.display='block';respBox.innerHTML='<div class="status err">Error: '+_escHtml(e.message)+'</div>';})
+  .finally(()=>{btn.disabled=false;btn.textContent='发送请求';});
+}
+function _escHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+document.querySelectorAll('.sidebar a').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();document.querySelectorAll('.sidebar a').forEach(x=>x.classList.remove('active'));this.classList.add('active');const id=this.getAttribute('href').slice(1);document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});}));
+</script>
+</body>
+</html>

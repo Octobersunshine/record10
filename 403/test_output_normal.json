@@ -1,0 +1,45 @@
+{
+  "file_path": "E:\\temp\\record10\\403\\test_normal.pdf",
+  "file_name": "test_normal.pdf",
+  "file_size_bytes": 2187,
+  "metadata": {
+    "page_count": 3,
+    "title": "Test Document",
+    "author": "John Doe",
+    "subject": "PDF Extraction Test",
+    "creator": "Test Script",
+    "producer": "pypdf + reportlab",
+    "creation_date": null,
+    "modification_date": null
+  },
+  "pages": [
+    {
+      "page_number": 1,
+      "text": "Page 1 - Hello World\nThis is a test PDF document for extraction testing.\nIt contains multiple pages with sample text.\n",
+      "character_count": 118,
+      "extraction_method": "text_layer"
+    },
+    {
+      "page_number": 2,
+      "text": "Page 2 - Second Page\nThis is the second page of the test document.\nThe quick brown fox jumps over the lazy dog.\n",
+      "character_count": 112,
+      "extraction_method": "text_layer"
+    },
+    {
+      "page_number": 3,
+      "text": "Page 3 - Third Page\nFinal page of the test document.\n1234567890 !@#$%^&*()\n",
+      "character_count": 75,
+      "extraction_method": "text_layer"
+    }
+  ],
+  "ocr": {
+    "enabled": false,
+    "available": false,
+    "used": false,
+    "lang": "eng+chi_sim",
+    "dpi": 300,
+    "error": null
+  },
+  "success": true,
+  "total_character_count": 305
+}

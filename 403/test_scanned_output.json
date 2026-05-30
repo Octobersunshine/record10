@@ -1,0 +1,46 @@
+{
+  "file_path": "E:\\temp\\record10\\403\\test_scanned.pdf",
+  "file_name": "test_scanned.pdf",
+  "file_size_bytes": 72739,
+  "metadata": {
+    "page_count": 3,
+    "title": "Scanned Document Test",
+    "author": "Test Author",
+    "subject": "unspecified",
+    "creator": "anonymous",
+    "producer": "ReportLab PDF Library - (opensource)",
+    "creation_date": "2026-05-30T01:04:03",
+    "modification_date": "2026-05-30T01:04:03"
+  },
+  "pages": [
+    {
+      "page_number": 1,
+      "text": "",
+      "character_count": 0,
+      "extraction_method": "text_layer"
+    },
+    {
+      "page_number": 2,
+      "text": "",
+      "character_count": 0,
+      "extraction_method": "text_layer"
+    },
+    {
+      "page_number": 3,
+      "text": "",
+      "character_count": 0,
+      "extraction_method": "text_layer"
+    }
+  ],
+  "ocr": {
+    "enabled": true,
+    "available": false,
+    "used": false,
+    "lang": "eng+chi_sim",
+    "dpi": 300,
+    "error": "Tesseract OCR not found. Install from: https://github.com/UB-Mannheim/tesseract/wiki"
+  },
+  "success": true,
+  "warning": "This appears to be a scanned PDF with no text layer. Install Tesseract OCR to enable text extraction. Details: Tesseract OCR not found. Install from: https://github.com/UB-Mannheim/tesseract/wiki",
+  "total_character_count": 0
+}
