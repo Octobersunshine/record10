@@ -69,6 +69,8 @@
     let peerConnection = null;
     let localStream = null;
     let remoteUserId = null;
+    let currentRoomId = null;
+    let heartbeatTimer = null;
 
     const localVideo = document.getElementById("localVideo");
     const remoteVideo = document.getElementById("remoteVideo");
@@ -109,23 +111,30 @@
             log("Join failed: " + res.error, "error");
             return;
           }
+          currentRoomId = roomId;
           log(`Joined room "${roomId}" as "${userId}"`, "success");
           if (res.users.length > 0) {
             remoteUserId = res.users[0].userId;
             log(`Peer already in room: ${remoteUserId}`, "info");
           }
+
+          const interval = res.heartbeatInterval || 5000;
+          startHeartbeat(interval);
+
           setStatus("In room", "status-connected");
           updateButtons(true, false);
         });
       });
 
-      socket.on("user-joined", ({ userId: uid }) => {
+      socket.on("user-joined", ({ userId: uid, roomId: rid }) => {
+        if (rid !== currentRoomId) return;
         log(`Peer joined: ${uid}`, "success");
         remoteUserId = uid;
         updateButtons(true, false);
       });
 
-      socket.on("user-left", ({ userId: uid }) => {
+      socket.on("user-left", ({ userId: uid, roomId: rid }) => {
+        if (rid !== currentRoomId) return;
         log(`Peer left: ${uid}`, "error");
         if (uid === remoteUserId) {
           remoteUserId = null;
@@ -134,7 +143,20 @@
         updateButtons(true, false);
       });
 
-      socket.on("offer", async ({ fromUserId, sdp }) => {
+      socket.on("kicked", ({ reason, roomId: rid }) => {
+        if (rid !== currentRoomId) return;
+        log(`Kicked from room: ${reason}`, "error");
+        stopHeartbeat();
+        cleanupSocket();
+        setStatus("Kicked", "status-idle");
+        updateButtons(false, false);
+      });
+
+      socket.on("offer", async ({ fromUserId, roomId: rid, sdp }) => {
+        if (rid !== currentRoomId) {
+          log(`Ignored OFFER from wrong room: ${rid}`, "error");
+          return;
+        }
         log(`Received OFFER from ${fromUserId}`, "sdp");
         remoteUserId = fromUserId;
         await ensurePeerConnection();
@@ -143,7 +165,7 @@
           await peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
           const answer = await peerConnection.createAnswer();
           await peerConnection.setLocalDescription(answer);
-          socket.emit("answer", { targetUserId: fromUserId, sdp: peerConnection.localDescription });
+          socket.emit("answer", { roomId: currentRoomId, targetUserId: fromUserId, sdp: peerConnection.localDescription });
           log(`Sent ANSWER to ${fromUserId}`, "sdp");
           setStatus("In call", "status-calling");
           updateButtons(true, true);
@@ -152,7 +174,11 @@
         }
       });
 
-      socket.on("answer", async ({ fromUserId, sdp }) => {
+      socket.on("answer", async ({ fromUserId, roomId: rid, sdp }) => {
+        if (rid !== currentRoomId) {
+          log(`Ignored ANSWER from wrong room: ${rid}`, "error");
+          return;
+        }
         log(`Received ANSWER from ${fromUserId}`, "sdp");
         try {
           await peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
@@ -163,7 +189,11 @@
         }
       });
 
-      socket.on("ice-candidate", async ({ fromUserId, candidate }) => {
+      socket.on("ice-candidate", async ({ fromUserId, roomId: rid, candidate }) => {
+        if (rid !== currentRoomId) {
+          log(`Ignored ICE from wrong room: ${rid}`, "error");
+          return;
+        }
         log(`Received ICE candidate from ${fromUserId}`, "info");
         try {
           if (peerConnection && candidate) {
@@ -176,18 +206,52 @@
 
       socket.on("disconnect", () => {
         log("Socket disconnected", "error");
+        stopHeartbeat();
         setStatus("Disconnected", "status-idle");
         updateButtons(false, false);
       });
     }
 
-    function leaveRoom() {
-      hangUp();
+    function startHeartbeat(interval) {
+      stopHeartbeat();
+      heartbeatTimer = setInterval(() => {
+        if (socket && currentRoomId) {
+          socket.emit("ping", { roomId: currentRoomId }, (res) => {
+            if (!res || !res.success) {
+              log("Heartbeat failed", "error");
+            }
+          });
+        }
+      }, interval);
+      log(`Heartbeat started (interval: ${interval}ms)`, "info");
+    }
+
+    function stopHeartbeat() {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+        log("Heartbeat stopped", "info");
+      }
+    }
+
+    function cleanupSocket() {
       if (socket) {
-        socket.emit("leave-room");
         socket.disconnect();
         socket = null;
       }
+      currentRoomId = null;
+      remoteUserId = null;
+    }
+
+    function leaveRoom() {
+      hangUp();
+      stopHeartbeat();
+      if (socket) {
+        socket.emit("leave-room", { roomId: currentRoomId });
+        socket.disconnect();
+        socket = null;
+      }
+      currentRoomId = null;
       remoteUserId = null;
       setStatus("Not connected", "status-idle");
       updateButtons(false, false);
@@ -223,8 +287,8 @@
       };
 
       peerConnection.onicecandidate = (event) => {
-        if (event.candidate && remoteUserId && socket) {
-          socket.emit("ice-candidate", { targetUserId: remoteUserId, candidate: event.candidate });
+        if (event.candidate && remoteUserId && socket && currentRoomId) {
+          socket.emit("ice-candidate", { roomId: currentRoomId, targetUserId: remoteUserId, candidate: event.candidate });
           log(`Sent ICE candidate to ${remoteUserId}`, "info");
         }
       };
@@ -250,7 +314,7 @@
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
 
-        socket.emit("offer", { targetUserId: remoteUserId, sdp: peerConnection.localDescription });
+        socket.emit("offer", { roomId: currentRoomId, targetUserId: remoteUserId, sdp: peerConnection.localDescription });
         log(`Sent OFFER to ${remoteUserId}`, "sdp");
         setStatus("Calling...", "status-calling");
         updateButtons(true, true);

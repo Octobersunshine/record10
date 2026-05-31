@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="320" viewBox="0 0 400 320">
+  <defs>
+    <clipPath id="canvas-clip">
+      <rect width="400" height="320"/>
+    </clipPath>
+  </defs>
+  <rect width="100%" height="100%" fill="#F8F9FA"/>
+  <rect x="50" y="50" width="100" height="80" fill="#3498DB" stroke="none" stroke-width="1" rx="5" ry="0" opacity="1.0" clip-path="url(#canvas-clip)"/>
+  <circle cx="250" cy="90" r="40" fill="#E74C3C" stroke="#2C3E50" stroke-width="3" opacity="1.0" clip-path="url(#canvas-clip)"/>
+  <line x1="50" y1="180" x2="350" y2="180" stroke="#2ECC71" stroke-width="4" opacity="1.0" clip-path="url(#canvas-clip)"/>
+  <path d="M100,220 Q200,150 300,220 T500,220" fill="none" stroke="#9B59B6" stroke-width="3" opacity="1.0" clip-path="url(#canvas-clip)"/>
+  <polygon points="200,250 230,290 170,290" fill="#F1C40F" stroke="none" stroke-width="1" opacity="1.0" clip-path="url(#canvas-clip)"/>
+  <ellipse cx="320" cy="260" rx="30" ry="20" fill="#1ABC9C" stroke="none" stroke-width="1" opacity="0.7" clip-path="url(#canvas-clip)"/>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "total": 4,
+  "success": 4,
+  "failed": 0,
+  "results": [
+    {
+      "name": "blue_3",
+      "output_path": "batch_decoded\\blue_3.jpg",
+      "format": "JPEG",
+      "dimensions": "800x600",
+      "success": true
+    },
+    {
+      "name": "green_2",
+      "output_path": "batch_decoded\\green_2.jpg",
+      "format": "JPEG",
+      "dimensions": "800x600",
+      "success": true
+    },
+    {
+      "name": "red_1",
+      "output_path": "batch_decoded\\red_1.jpg",
+      "format": "JPEG",
+      "dimensions": "800x600",
+      "success": true
+    },
+    {
+      "name": "transparent",
+      "output_path": "batch_decoded\\transparent.png",
+      "format": "PNG",
+      "dimensions": "400x300",
+      "success": true
+    }
+  ],
+  "failed_items": []
+}

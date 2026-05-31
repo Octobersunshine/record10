@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="400" viewBox="0 0 500 400">
+  <rect x="0" y="0" width="500" height="400" fill="#FFFFFF"/>
+  <text x="250" y="25" font-size="18" fill="#2C3E50" text-anchor="middle">Traffic Sources</text>
+  <path d="M250.0,75.0 A140,140 0 0,1 363.3,297.3 L298.5,250.3 A60,60 0 0,0 250.0,155.0 Z" fill="#3498DB" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="339.1006524188368" y="173.60095002604533" font-size="10" fill="#FFFFFF" text-anchor="middle">Direct 35.0%</text>
+  <path d="M363.3,297.3 A140,140 0 0,1 147.9,310.8 L206.3,256.1 A60,60 0 0,0 298.5,250.3 Z" fill="#E74C3C" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="256.27905195293135" y="318.8026728428272" font-size="10" fill="#FFFFFF" text-anchor="middle">Organic 28.0%</text>
+  <path d="M147.9,310.8 A140,140 0 0,1 127.3,147.6 L197.4,186.1 A60,60 0 0,0 206.3,256.1 Z" fill="#2ECC71" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="150.78852986855222" y="231.5333233564304" font-size="10" fill="#FFFFFF" text-anchor="middle">Referral 20.0%</text>
+  <path d="M127.3,147.6 A140,140 0 0,1 206.7,81.9 L231.5,157.9 A60,60 0 0,0 197.4,186.1 Z" fill="#F39C12" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="186.25760102513104" y="141.94867572242106" font-size="10" fill="#FFFFFF" text-anchor="middle">Social 12.0%</text>
+  <path d="M206.7,81.9 A140,140 0 0,1 250.0,75.0 L250.0,155.0 A60,60 0 0,0 231.5,157.9 Z" fill="#9B59B6" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="234.3565534959769" y="120.23116594048624" font-size="10" fill="#FFFFFF" text-anchor="middle">Email 5.0%</text>
+  <rect x="50" y="367" width="12" height="12" fill="#3498DB"/>
+  <text x="66" y="377" font-size="10" fill="#2C3E50" text-anchor="middle">Direct</text>
+  <rect x="130" y="367" width="12" height="12" fill="#E74C3C"/>
+  <text x="146" y="377" font-size="10" fill="#2C3E50" text-anchor="middle">Organic</text>
+  <rect x="210" y="367" width="12" height="12" fill="#2ECC71"/>
+  <text x="226" y="377" font-size="10" fill="#2C3E50" text-anchor="middle">Referral</text>
+  <rect x="290" y="367" width="12" height="12" fill="#F39C12"/>
+  <text x="306" y="377" font-size="10" fill="#2C3E50" text-anchor="middle">Social</text>
+  <rect x="370" y="367" width="12" height="12" fill="#9B59B6"/>
+  <text x="386" y="377" font-size="10" fill="#2C3E50" text-anchor="middle">Email</text>
+</svg>

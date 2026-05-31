@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <rect x="0" y="0" width="600" height="400" fill="#FFFFFF" rx="0"/>
+  <text x="300" y="30" font-size="18" fill="#2C3E50" text-anchor="middle">Product Sales Comparison</text>
+  <line x1="60" y1="320.0" x2="570" y2="320.0" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="52" y="324.0" font-size="10" fill="#7F8C8D" text-anchor="middle">0</text>
+  <line x1="60" y1="266.0" x2="570" y2="266.0" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="52" y="270.0" font-size="10" fill="#7F8C8D" text-anchor="middle">133</text>
+  <line x1="60" y1="212.0" x2="570" y2="212.0" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="52" y="216.0" font-size="10" fill="#7F8C8D" text-anchor="middle">267</text>
+  <line x1="60" y1="158.0" x2="570" y2="158.0" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="52" y="162.0" font-size="10" fill="#7F8C8D" text-anchor="middle">400</text>
+  <line x1="60" y1="104.0" x2="570" y2="104.0" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="52" y="108.0" font-size="10" fill="#7F8C8D" text-anchor="middle">534</text>
+  <line x1="60" y1="50.0" x2="570" y2="50.0" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="52" y="54.0" font-size="10" fill="#7F8C8D" text-anchor="middle">667</text>
+  <line x1="60" y1="50" x2="60" y2="320" stroke="#BDC3C7" stroke-width="1"/>
+  <line x1="60" y1="320" x2="570" y2="320" stroke="#BDC3C7" stroke-width="1"/>
+  <rect x="81" y="137" width="60" height="182" fill="#3498DB" rx="3"/>
+  <text x="111" y="129" font-size="10" fill="#2C3E50" text-anchor="middle">450</text>
+  <text x="111" y="340" font-size="10" fill="#7F8C8D" text-anchor="middle">Product A</text>
+  <rect x="183" y="190" width="60" height="129" fill="#E74C3C" rx="3"/>
+  <text x="213" y="182" font-size="10" fill="#2C3E50" text-anchor="middle">320</text>
+  <text x="213" y="340" font-size="10" fill="#7F8C8D" text-anchor="middle">Product B</text>
+  <rect x="285" y="85" width="60" height="234" fill="#2ECC71" rx="3"/>
+  <text x="315" y="77" font-size="10" fill="#2C3E50" text-anchor="middle">580</text>
+  <text x="315" y="340" font-size="10" fill="#7F8C8D" text-anchor="middle">Product C</text>
+  <rect x="387" y="230" width="60" height="89" fill="#F39C12" rx="3"/>
+  <text x="417" y="222" font-size="10" fill="#2C3E50" text-anchor="middle">220</text>
+  <text x="417" y="340" font-size="10" fill="#7F8C8D" text-anchor="middle">Product D</text>
+  <rect x="489" y="162" width="60" height="157" fill="#9B59B6" rx="3"/>
+  <text x="519" y="154" font-size="10" fill="#2C3E50" text-anchor="middle">390</text>
+  <text x="519" y="340" font-size="10" fill="#7F8C8D" text-anchor="middle">Product E</text>
+</svg>

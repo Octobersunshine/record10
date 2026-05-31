@@ -1,0 +1,1 @@
+this is an example of a huffman tree. the huffman coding algorithm is a lossless data compression method. it assigns variable-length codes to input characters based on their frequencies. characters that appear more frequently get shorter codes, while rarer characters get longer codes. this ensures that the overall encoded message is as compact as possible.
